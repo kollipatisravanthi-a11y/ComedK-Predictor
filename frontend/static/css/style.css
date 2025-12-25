@@ -11,7 +11,8 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f0f2f5;
+    background: linear-gradient(135deg, #ffe5b4 0%, #e3e3e3 100%); /* Peach + Silver */
+    background-attachment: fixed; /* Keeps gradient fixed while scrolling */
     color: #333;
 }
 

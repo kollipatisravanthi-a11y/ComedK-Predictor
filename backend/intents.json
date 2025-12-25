@@ -1,0 +1,160 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": [
+        "Hi",
+        "Hey",
+        "How are you",
+        "Is anyone there?",
+        "Hello",
+        "Good morning",
+        "Good evening",
+        "Good afternoon"
+      ],
+      "responses": [
+        "Hello! I'm your COMEDK Assistant. How can I help you today?",
+        "Hi there! Ready to help you with your COMEDK queries.",
+        "Hey! Ask me anything about COMEDK colleges, exams, or cutoffs."
+      ]
+    },
+    {
+      "tag": "farewell",
+      "patterns": [
+        "Bye",
+        "See you later",
+        "Goodbye",
+        "I am leaving",
+        "Have a Good day",
+        "cya"
+      ],
+      "responses": [
+        "Goodbye! Good luck with your college search!",
+        "See you later. Feel free to come back if you have more questions.",
+        "Bye! Hope I was helpful."
+      ]
+    },
+    {
+      "tag": "exam_info",
+      "patterns": [
+        "What is COMEDK?",
+        "Tell me about the exam",
+        "When is the exam?",
+        "What is the exam pattern?",
+        "COMEDK UGET details",
+        "exam date"
+      ],
+      "responses": [
+        "COMEDK UGET is a common entrance test held at the national level for admission to around 190 unaided private engineering colleges in Karnataka.",
+        "The exam is usually conducted in May. It consists of 180 questions (60 each from Physics, Chemistry, Maths) to be answered in 3 hours."
+      ]
+    },
+    {
+      "tag": "colleges",
+      "patterns": [
+        "Which colleges accept COMEDK?",
+        "List of colleges",
+        "Top colleges",
+        "How many colleges are there?",
+        "Tell me about the institutes"
+      ],
+      "responses": [
+        "There are over 190 colleges accepting COMEDK scores. You can view the top colleges in the 'Colleges' tab on this website.",
+        "Some top colleges include RVCE, BMSCE, MSRIT, and DSCE. Check the 'Colleges' section for a full list."
+      ]
+    },
+    {
+      "tag": "cutoff",
+      "patterns": [
+        "What is the cutoff?",
+        "cutoff for RVCE",
+        "cutoff for CS",
+        "previous year cutoffs",
+        "rank required for BMSCE"
+      ],
+      "responses": [
+        "Cutoffs vary by college, branch, and category. You can use our 'Predictor' tool to check which colleges you are eligible for based on your rank.",
+        "Cutoffs change every year. It's best to check the 'Predictor' page to get an idea based on previous years' trends."
+      ]
+    },
+    {
+      "tag": "rank",
+      "patterns": [
+        "How is rank calculated?",
+        "What is a good rank?",
+        "my rank is 5000",
+        "rank vs marks"
+      ],
+      "responses": [
+        "Your rank is determined by your score in the COMEDK UGET exam. Higher score leads to a lower (better) rank.",
+        "A rank below 5000 is generally considered very good for top colleges and branches."
+      ]
+    },
+    {
+      "tag": "counselling",
+      "patterns": [
+        "What is the counselling process?",
+        "How to register for counselling?",
+        "counselling dates",
+        "choice filling"
+      ],
+      "responses": [
+        "Counselling usually happens in 3 rounds. You need to register online, upload documents, fill choices, and lock them.",
+        "Keep an eye on the official COMEDK website for counselling schedules and notifications."
+      ]
+    },
+    {
+      "tag": "documents",
+      "patterns": [
+        "What documents are required?",
+        "documents for verification",
+        "certificates needed",
+        "id proof"
+      ],
+      "responses": [
+        "Common documents required are Admit Card, Rank Card, 10th/12th Marks Cards, ID Proof, Study Certificate, etc.",
+        "Ensure you have original documents and multiple sets of attested photocopies."
+      ]
+    },
+    {
+      "tag": "fees",
+      "patterns": [
+        "What is the fee structure?",
+        "tuition fees",
+        "college fees",
+        "cost of engineering"
+      ],
+      "responses": [
+        "The tuition fee for COMEDK colleges is generally around 2-2.5 Lakhs per annum, but it varies by college.",
+        "Apart from tuition fees, there might be other college fees and hostel fees."
+      ]
+    },
+    {
+      "tag": "predictor",
+      "patterns": [
+        "How to use the predictor?",
+        "predict my college",
+        "college predictor tool",
+        "where is the predictor?"
+      ],
+      "responses": [
+        "To use the predictor, go to the 'Predictor' page, enter your rank, select your preferred branches, and click 'Predict Colleges'.",
+        "The predictor uses past year data to estimate your chances. Give it a try!"
+      ]
+    },
+    {
+      "tag": "thanks",
+      "patterns": [
+        "Thank you",
+        "Thanks",
+        "Thanks a lot",
+        "Thank you very much"
+      ],
+      "responses": [
+        "You're welcome!",
+        "Happy to help!",
+        "Anytime!"
+      ]
+    }
+  ]
+}
