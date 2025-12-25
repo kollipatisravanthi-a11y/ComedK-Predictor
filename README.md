@@ -13,15 +13,15 @@ A web application to predict eligible engineering colleges based on COMEDK rank 
 ## Setup Instructions
 
 1.  **Install Dependencies**:
-    ```bash
+    `ash
     pip install -r requirements.txt
-    ```
+    ` 
 
 2.  **Run the Application**:
     Navigate to the `backend` directory and run:
-    ```bash
+    `ash
     python app.py
-    ```
+    ` 
     The app will be available at `http://127.0.0.1:5000/`.
 
 ## Features
@@ -40,7 +40,7 @@ A web application to predict eligible engineering colleges based on COMEDK rank 
 - **User-Friendly Interface**: 
     - Modern, responsive design using Bootstrap 5.
     - Tabbed views for easy navigation between categories.
-    - "Counselling Guidance" and "Exam Details" sections.
+    - `Counselling Guidance` and `Exam Details` sections.
 
 ## Development Steps
 
