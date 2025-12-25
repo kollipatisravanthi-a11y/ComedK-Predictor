@@ -1,6 +1,14 @@
 from backend.app import app
-from flask import render_template, request
+from flask import render_template, request, jsonify
 from backend.prediction import predict_colleges
+from backend.chatbot import chatbot
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.get_json()
+    user_message = data.get('message', '')
+    response = chatbot.get_response(user_message)
+    return jsonify({'response': response})
 
 @app.route('/')
 def home():
