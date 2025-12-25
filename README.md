@@ -57,6 +57,11 @@ An AI-powered web application that predicts COMEDK (Consortium of Medical, Engin
    ```
    The application will be available at `http://localhost:5000`
 
+   **Note**: By default, debug mode is disabled for security. To enable debug mode during development:
+   ```bash
+   FLASK_DEBUG=true python app.py
+   ```
+
 ## Usage
 
 ### Web Interface

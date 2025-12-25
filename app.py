@@ -70,4 +70,7 @@ if __name__ == '__main__':
         print("Warning: Model not found. Please run data_generator.py and train_model.py first.")
     
     # Run the app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Note: Set debug=False for production deployment
+    import os
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)
