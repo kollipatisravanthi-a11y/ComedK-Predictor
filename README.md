@@ -28,6 +28,24 @@ An AI-powered web application that predicts COMEDK (Consortium of Medical, Engin
 
 ### Setup Steps
 
+#### Quick Setup (Automated)
+
+Use the provided setup script to automate the entire setup process:
+
+```bash
+git clone https://github.com/kollipatisravanthi-a11y/ComedK-Predictor.git
+cd ComedK-Predictor
+chmod +x setup.sh
+./setup.sh
+```
+
+The script will automatically:
+- Install all dependencies
+- Generate training data
+- Train the AI model
+
+#### Manual Setup
+
 1. **Clone the repository**
    ```bash
    git clone https://github.com/kollipatisravanthi-a11y/ComedK-Predictor.git
@@ -74,6 +92,16 @@ An AI-powered web application that predicts COMEDK (Consortium of Medical, Engin
 3. Click "Predict My Rank"
 4. View your predicted rank, rank range, and performance insights
 
+### Example Script
+
+Run the included example script to see sample predictions:
+
+```bash
+python example.py
+```
+
+This will show predictions for various performance levels and demonstrate the predictor's capabilities.
+
 ### Command Line Interface
 
 You can also use the predictor directly in Python:
@@ -103,7 +131,11 @@ ComedK-Predictor/
 ├── predictor.py            # Core prediction module
 ├── train_model.py          # Model training script
 ├── data_generator.py       # Training data generation
+├── example.py              # Example usage script
+├── setup.sh                # Automated setup script
 ├── requirements.txt        # Python dependencies
+├── README.md               # Documentation
+├── .gitignore              # Git ignore rules
 ├── data/                   # Training data directory
 │   └── comedk_training_data.csv
 ├── models/                 # Trained models directory
