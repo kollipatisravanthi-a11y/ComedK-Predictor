@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMEDK Rank Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 COMEDK Rank Predictor</h1>
+            <p class="subtitle">AI-Powered Rank Prediction Based on Your Scores</p>
+        </header>
+
+        {% if not model_loaded %}
+        <div class="alert alert-warning">
+            <strong>⚠️ Model Not Loaded</strong>
+            <p>Please run the following commands to train the model:</p>
+            <code>python data_generator.py</code><br>
+            <code>python train_model.py</code>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <h2>Enter Your Expected Scores</h2>
+            <p class="info">Each subject has 60 questions. Enter your expected score for each subject.</p>
+            
+            <form id="predictionForm">
+                <div class="form-group">
+                    <label for="physics">Physics Score (0-60)</label>
+                    <input type="number" id="physics" name="physics" min="0" max="60" step="0.01" required>
+                    <span class="help-text">Maximum marks: 60</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="chemistry">Chemistry Score (0-60)</label>
+                    <input type="number" id="chemistry" name="chemistry" min="0" max="60" step="0.01" required>
+                    <span class="help-text">Maximum marks: 60</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="math">Mathematics Score (0-60)</label>
+                    <input type="number" id="math" name="math" min="0" max="60" step="0.01" required>
+                    <span class="help-text">Maximum marks: 60</span>
+                </div>
+
+                <button type="submit" class="btn btn-primary" {% if not model_loaded %}disabled{% endif %}>
+                    Predict My Rank
+                </button>
+            </form>
+        </div>
+
+        <div id="results" class="card results-card" style="display: none;">
+            <h2>Prediction Results</h2>
+            
+            <div class="result-section">
+                <div class="result-main">
+                    <div class="result-item">
+                        <span class="result-label">Total Score:</span>
+                        <span class="result-value" id="totalScore">-</span>
+                        <span class="result-unit">out of 180</span>
+                    </div>
+                    
+                    <div class="result-item highlight">
+                        <span class="result-label">Predicted Rank:</span>
+                        <span class="result-value large" id="predictedRank">-</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Rank Range:</span>
+                        <span class="result-value" id="rankRange">-</span>
+                    </div>
+                </div>
+
+                <div class="performance-badge" id="performanceBadge">
+                    <div class="badge-category" id="category">-</div>
+                    <div class="badge-message" id="message">-</div>
+                </div>
+            </div>
+
+            <div class="subject-breakdown">
+                <h3>Subject-wise Scores</h3>
+                <div class="scores-grid">
+                    <div class="score-item">
+                        <div class="score-label">⚛️ Physics</div>
+                        <div class="score-value" id="physicsDisplay">-</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">🧪 Chemistry</div>
+                        <div class="score-value" id="chemistryDisplay">-</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">📐 Mathematics</div>
+                        <div class="score-value" id="mathDisplay">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="error" class="alert alert-error" style="display: none;">
+            <strong>Error:</strong> <span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <footer>
+        <p>COMEDK Rank Predictor - AI-powered predictions based on historical data</p>
+        <p class="disclaimer">⚠️ Disclaimer: This is an AI-based prediction tool. Actual ranks may vary based on various factors.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
