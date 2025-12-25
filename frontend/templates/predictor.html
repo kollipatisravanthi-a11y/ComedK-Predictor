@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-white text-center py-4">
+                    <h2 class="mb-0 text-primary fw-bold"><i class="fas fa-calculator me-2"></i>College Predictor</h2>
+                    <p class="text-muted mb-0 mt-2">Enter your details to get started</p>
+                </div>
+                <div class="card-body p-5">
+                    <form action="/predictor" method="POST">
+                        <div class="mb-4">
+                            <label for="rank" class="form-label fw-bold">Your COMEDK Rank</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-trophy text-primary"></i></span>
+                                <input type="number" class="form-control form-control-lg" id="rank" name="rank" placeholder="e.g. 5000" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="branch" class="form-label fw-bold">Preferred Branch(es)</label>
+                            <p class="text-muted small mb-2">Hold Ctrl (Windows) or Command (Mac) to select multiple options.</p>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-code-branch text-primary"></i></span>
+                                <select class="form-select form-select-lg" id="branch" name="branch" multiple size="8">
+                                    <option value="AE">Aeronautical Engineering</option>
+                                    <option value="AS">Aerospace Engineering</option>
+                                    <option value="AL">Agriculture Engineering</option>
+                                    <option value="AG">Agricultural Engineering</option>
+                                    <option value="AD">Artificial Intelligence & Data Science</option>
+                                    <option value="AI">Artificial Intelligence & Machine Learning</option>
+                                    <option value="AR">Automation & Robotics Engineering</option>
+                                    <option value="AU">Automobile Engineering</option>
+                                    <option value="AVE">Automotive Engineering</option>
+                                    <option value="BEE">Bio Electronics Engineering</option>
+                                    <option value="BM">Bio Medical Engineering</option>
+                                    <option value="BT">Biotechnology</option>
+                                    <option value="CC">Ceramic And Cement Technology</option>
+                                    <option value="CH">Chemical Engineering</option>
+                                    <option value="CVC">Civil (Construction Engineering & Management)</option>
+                                    <option value="CCS">Civil Construction & Sustainability Engineering</option>
+                                    <option value="CV">Civil Engineering</option>
+                                    <option value="CK">Civil Engineering (Kannada)</option>
+                                    <option value="CVS">Civil Engineering (SC)</option>
+                                    <option value="CCA">Civil Engineering with Computer Application</option>
+                                    <option value="CM">Computer & Communication Engineering</option>
+                                    <option value="CE">Computer Engineering</option>
+                                    <option value="CR">Computer Science</option>
+                                    <option value="CB">Computer Science & Business Systems</option>
+                                    <option value="CG">Computer Science & Design</option>
+                                    <option value="CS">Computer Science & Engineering</option>
+                                    <option value="CI">Computer Science & Engineering (AI & ML)</option>
+                                    <option value="CA">Computer Science & Engineering (AI)</option>
+                                    <option value="CSB">Computer Science & Engineering (Block Chain)</option>
+                                    <option value="CY">Computer Science & Engineering (Cyber Security)</option>
+                                    <option value="CD">Computer Science & Engineering (Data Science)</option>
+                                    <option value="IC">Computer Science & Engineering (IOT & Cyber Security incl. Block Chain)</option>
+                                    <option value="CO">Computer Science & Engineering (IOT)</option>
+                                    <option value="CNW">Computer Science & Engineering (Networks)</option>
+                                    <option value="CSS">Computer Science & Engineering (SC)</option>
+                                    <option value="CIT">Computer Science & Information Technology</option>
+                                    <option value="CN">Computer Science & Technology</option>
+                                    <option value="CBD">Computer Science & Technology (Big Data)</option>
+                                    <option value="CSD">Computer Science & Technology (DevOps)</option>
+                                    <option value="CT">Construction Technology & Management</option>
+                                    <option value="CX">Cyber Security</option>
+                                    <option value="DS">Data Science</option>
+                                    <option value="ECE">Electrical & Computer Engineering</option>
+                                    <option value="EE">Electrical & Electronics Engineering</option>
+                                    <option value="EII">Electronics & Communication (Industry Integrated)</option>
+                                    <option value="EC">Electronics & Communication Engineering</option>
+                                    <option value="ECS">Electronics & Communication Engineering (SC)</option>
+                                    <option value="UE">Electronics & Computer Engineering</option>
+                                    <option value="ES">Electronics & Computer Science</option>
+                                    <option value="RI">Robotics & Artificial Intelligence</option>
+                                    <option value="RA">Robotics & Automation</option>
+                                    <option value="ROM">Robotics & Mechatronics</option>
+                                    <option value="SA">Smart Agritech</option>
+                                    <option value="TE">Telecommunication Engineering</option>
+                                    <option value="TX">Textile Technology</option>
+                                    <option value="VLS">VLSI</option>
+                                    <option value="CAD">Computer Science & Engineering (Artificial Intelligence & Data Science)</option>
+                                    <option value="AT">Bachelor of Architecture</option>
+                                    <option value="BP">Bachelor of Urban & Regional Planning</option>
+                                    <option value="BD">Bachelor of Design</option>
+                                    <option value="BFD">Bachelor of Design (Fashion Design)</option>
+                                    <option value="BID">Bachelor of Design (Industrial Design)</option>
+                                    <option value="BLD">Bachelor of Design (Lifestyle & Accessory Design)</option>
+                                    <option value="BDC">Bachelor of Design (Communication & Design)</option>
+                                    <option value="BPL">Bachelor of Planning</option>
+                                    <option value="BIN">Bachelor of Design (Interior Design)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="category" class="form-label fw-bold">Category</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-users text-primary"></i></span>
+                                <select class="form-select form-select-lg" id="category" name="category">
+                                    <option value="GM">General Merit (GM)</option>
+                                    <option value="HK">Hyderabad-Karnataka (HK)</option>
+                                    <option value="SC">Scheduled Caste (SC)</option>
+                                    <option value="ST">Scheduled Tribe (ST)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-magic me-2"></i>Predict My Colleges
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
