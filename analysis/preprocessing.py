@@ -16,7 +16,10 @@ def clean_data(input_path, output_path):
         print(f"File not found: {input_path}")
         return
 
-    df = pd.read_csv(input_path)
+    if input_path.endswith('.xlsx') or input_path.endswith('.xls'):
+        df = pd.read_excel(input_path)
+    else:
+        df = pd.read_csv(input_path)
     
     # Example cleaning steps
     df.drop_duplicates(inplace=True)

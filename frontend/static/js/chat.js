@@ -60,3 +60,14 @@ function addMessage(text, className) {
     chatBody.appendChild(messageDiv);
     chatBody.scrollTop = chatBody.scrollHeight;
 }
+
+function clearChat() {
+    const chatBody = document.getElementById('chat-body');
+    chatBody.innerHTML = '';
+    
+    // Restore initial greeting
+    const initialMessage = document.createElement('div');
+    initialMessage.classList.add('chat-message', 'bot-message');
+    initialMessage.textContent = "Hello! I'm here to help you with COMEDK related queries. Ask me anything!";
+    chatBody.appendChild(initialMessage);
+}

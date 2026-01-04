@@ -38,12 +38,15 @@
 
     <!-- Chatbot Widget -->
     <div id="chat-widget" class="chat-widget">
-        <div class="chat-header" onclick="toggleChat()">
-            <div class="d-flex align-items-center">
+        <div class="chat-header">
+            <div class="d-flex align-items-center" onclick="toggleChat()" style="flex-grow: 1; cursor: pointer;">
                 <i class="fas fa-robot me-2"></i>
                 <span>COMEDK Assistant</span>
             </div>
-            <i class="fas fa-chevron-up" id="chat-toggle-icon"></i>
+            <div>
+                <i class="fas fa-trash-alt me-3" onclick="clearChat()" title="Clear Chat" style="cursor: pointer;"></i>
+                <i class="fas fa-chevron-up" id="chat-toggle-icon" onclick="toggleChat()" style="cursor: pointer;"></i>
+            </div>
         </div>
         <div class="chat-body" id="chat-body">
             <div class="chat-message bot-message">

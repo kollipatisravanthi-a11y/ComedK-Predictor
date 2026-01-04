@@ -1,0 +1,773 @@
+{
+    "E001": {
+        "links": {
+            "placement": {
+                "url": "https://www.acharya.ac.in/placement/",
+                "content": "**Highest Package:** 28 LPA\n**Average Package:** 4.10 LPA\n**Placement Year:** 2024"
+            },
+            "hostel": {
+                "url": "https://www.acharya.ac.in/life@acharya/hostel.html",
+                "content": "**Availability:** Yes\n**Separate Hostels:** Yes (5 Boys, 7 Girls)\n**Facilities:** Mess, Laundry, Wifi, Kitchenettes"
+            },
+            "infrastructure": {
+                "url": "https://www.acharya.ac.in/acharya-institute-of-technology.html",
+                "content": "**Campus Area:** 120 acres\n**Facilities:** Library, Labs, Sports Stadium, Health Center, Incubation Center"
+            },
+            "academics": {
+                "url": "https://www.acharya.ac.in/acharya-institute-of-technology.html",
+                "content": "**Accreditation:** NAAC, NBA\n**Affiliation:** VTU"
+            },
+            "admissions": {
+                "url": "https://www.acharya.ac.in/admissions/",
+                "content": "**COMEDK Accepted:** Yes\n**Process:** Through COMEDK UGET counseling."
+            },
+            "contact": {
+                "url": "https://www.acharya.ac.in/contact-us/",
+                "content": "**Address:** Acharya Dr. S. Radhakrishnan Road, Soladevanahalli, Bangalore - 560107\n**Phone:** +91 74066-44449\n**Email:** admissions@acharya.ac.in"
+            }
+        },
+        "courses": [
+            "Aeronautical Engineering",
+            "Biotechnology",
+            "Computer Science and Engineering (Data Science)",
+            "Electrical and Electronics Engineering",
+            "Information Science and Engineering",
+            "Mechatronics Engineering",
+            "Artificial Intelligence & Machine Learning",
+            "Computer Science and Engineering",
+            "Civil Engineering",
+            "Electronics & Communication Engineering",
+            "Mechanical Engineering",
+            "Robotics & Artificial Intelligence"
+        ],
+        "website": "https://www.acharya.ac.in/"
+    },
+    "E002": {
+        "links": {
+            "placement": {
+                "url": "https://www.acharya.ac.in/placements",
+                "content": "**Highest Package:** 28 LPA (Campus)\n**Average Package:** 4.10 LPA (Campus)\n**Placement Year:** 2024"
+            },
+            "hostel": {
+                "url": "https://www.acharya.ac.in/life@acharya/hostel.html",
+                "content": "**Availability:** Yes\n**Separate Hostels:** Yes (5 Boys, 7 Girls)\n**Facilities:** Mess, Laundry, Wifi, Kitchenettes"
+            },
+            "infrastructure": {
+                "url": "https://www.acharya.ac.in/about/infrastructure.html",
+                "content": "**Campus Area:** 120 acres\n**Facilities:** Library, Labs, Sports Stadium, Health Center, Incubation Center"
+            },
+            "academics": {
+                "url": "https://www.acharya.ac.in/",
+                "content": "**Accreditation:** COA Approved\n**Affiliation:** VTU"
+            },
+            "admissions": {
+                "url": "https://www.acharya.ac.in/admissions/",
+                "content": "**COMEDK Accepted:** Yes"
+            },
+            "contact": {
+                "url": "https://www.acharya.ac.in/contact-us/",
+                "content": "**Address:** Acharya Dr. S. Radhakrishnan Road, Soladevanahalli, Bangalore - 560107\n**Phone:** +91 74066-44449\n**Email:** admissions@acharya.ac.in"
+            }
+        },
+        "courses": [
+            "Architecture"
+        ],
+        "website": "https://www.acharya.ac.in/"
+    },
+    "E003": {
+        "links": {
+            "placement": {
+                "url": "https://www.acsce.edu.in/placement",
+                "content": "**Placement Year:** 2024-2025 (In Process)\n**Details:** Placement cell coordinates training and placement activities."
+            },
+            "hostel": {
+                "url": "https://www.acsce.edu.in/hostel",
+                "content": "**Availability:** Yes\n**Separate Hostels:** Yes\n**Facilities:** Attached bathroom, Mess, Laundry, Wifi, Gym"
+            },
+            "infrastructure": {
+                "url": "https://www.acsce.edu.in/infrastructure",
+                "content": "**Facilities:** Auditorium, Bank, Cafeteria, Library, Sports & Recreation"
+            },
+            "academics": {
+                "url": "https://www.acsce.edu.in/academics",
+                "content": "**Accreditation:** NAAC, NBA\n**Affiliation:** VTU"
+            },
+            "admissions": {
+                "url": "https://www.acsce.edu.in/admission",
+                "content": "**COMEDK Accepted:** Yes"
+            },
+            "contact": {
+                "url": "https://www.acsce.edu.in/contact",
+                "content": "**Address:** #207, Kambipura, Mysore Road, Bangalore – 560 074\n**Phone:** +91-80-29748777\n**Email:** admission@acsce.edu.in"
+            }
+        },
+        "courses": [
+            "Aeronautical Engineering",
+            "Aerospace Engineering",
+            "Bio - Medical Engineering",
+            "Computer Science & Engineering",
+            "Computer Science & Engineering (Cyber Security)",
+            "Computer Science & Engineering (IOT)",
+            "Electronics & Communication Engineering",
+            "Computer Science & Engineering (Data Science)"
+        ],
+        "website": "https://www.acsce.edu.in/"
+    },
+    "E004": {
+        "links": {
+            "placement": {
+                "url": "https://aitckm.edu.in/placement-cell/",
+                "content": "**Details:** Aiming towards 100% placements. HRD Department conducts training."
+            },
+            "hostel": {
+                "url": "https://aitckm.edu.in/facilities/hostel/",
+                "content": "**Availability:** Yes\n**Separate Hostels:** Yes\n**Facilities:** Mess (Veg/Non-Veg), Hot water, Emergency Generator, Gym"
+            },
+            "infrastructure": {
+                "url": "https://aitckm.edu.in/",
+                "content": "**Campus Area:** 65 acres\n**Facilities:** Well-equipped laboratories, Seminar halls, Amphitheater, Sports complex"
+            },
+            "academics": {
+                "url": "https://aitckm.edu.in/",
+                "content": "**Accreditation:** NAAC 'A' Grade\n**Affiliation:** VTU"
+            },
+            "admissions": {
+                "url": "https://aitckm.edu.in/admissions/",
+                "content": "**COMEDK Accepted:** Yes"
+            },
+            "contact": {
+                "url": "https://aitckm.edu.in/contact/",
+                "content": "**Address:** Jyothi nagara, Chikkamagaluru – 577102\n**Phone:** 08262-220444\n**Email:** office@aitckm.in"
+            }
+        },
+        "courses": [
+            "Artificial Intelligence & Machine Learning",
+            "Computer Science and Engineering",
+            "Computer Science & Engineering (Data Science)",
+            "Information Science and Engineering",
+            "Electronics and Communication Engineering",
+            "Electrical and Electronics Engineering",
+            "Civil Engineering",
+            "Mechanical Engineering",
+            "Robotics & Artificial Intelligence"
+        ],
+        "website": "https://aitckm.edu.in/"
+    },
+    "E005": {
+        "links": {
+            "placement": {
+                "url": "https://www.akashinstitutions.com/placements/",
+                "content": "**Details:** 100% Placement Track Record. Strong industry connect."
+            },
+            "hostel": {
+                "url": "https://www.akashinstitutions.com/infrastructure/",
+                "content": "**Availability:** Yes\n**Separate Hostels:** Yes\n**Facilities:** Premium accommodations, Canteen"
+            },
+            "infrastructure": {
+                "url": "https://www.akashinstitutions.com/infrastructure/",
+                "content": "**Campus Area:** 50 acres (Main Campus)\n**Facilities:** Simulation Centre, Laboratories, Library, Sports Infrastructure"
+            },
+            "academics": {
+                "url": "https://www.akashinstitutions.com/courses/",
+                "content": "**Affiliation:** VTU"
+            },
+            "admissions": {
+                "url": "https://www.akashinstitutions.com/admission/",
+                "content": "**COMEDK Accepted:** Yes"
+            },
+            "contact": {
+                "url": "https://www.akashinstitutions.com/contact-us/",
+                "content": "**Address:** Prasannahalli Main Road, Devanahalli, Bengaluru - 562110\n**Phone:** +91 9513597575\n**Email:** admissions@akashinstitutions.com"
+            }
+        },
+        "courses": [
+            "Computer Science Engineering",
+            "Computer Science & Engineering (Artificial Intelligence & Machine Learning)",
+            "Artificial Intelligence and Machine Learning",
+            "Information Science and Engineering",
+            "Mechanical Engineering",
+            "Electronics and Communication Engineering",
+            "CSE Data Science",
+            "CSE (CYBER SECURITY)"
+        ],
+        "website": "https://www.akashinstitutions.com/"
+    },
+    "E006": {
+        "links": {
+            "placement": {
+                "url": "https://www.aiet.org.in/training-placement/",
+                "content": "**Placement Year:** 2022-23\n**Details:** 100% placement records. Hosts 'Alva’s Pragati' mega placement drive."
+            },
+            "hostel": {
+                "url": "https://www.aiet.org.in/amenities-facilities/",
+                "content": "**Availability:** Yes\n**Separate Hostels:** Yes\n**Facilities:** Amenities & Facilities available"
+            },
+            "infrastructure": {
+                "url": "https://www.aiet.org.in/amenities-facilities/",
+                "content": "**Facilities:** Wi-Fi enabled campus (1000 Mbps), Multi cuisine food court, Sports infrastructure"
+            },
+            "academics": {
+                "url": "https://www.aiet.org.in/",
+                "content": "**Accreditation:** NBA, NAAC\n**Affiliation:** VTU"
+            },
+            "admissions": {
+                "url": "https://admissions.alvas.org/engineering-application-form",
+                "content": "**COMEDK Accepted:** Yes"
+            },
+            "contact": {
+                "url": "https://www.aiet.org.in/contact-us/",
+                "content": "**Address:** Shobhavana Campus, Mijar, Moodubidire - 574 225\n**Phone:** 08258- 262724\n**Email:** principalaiet08@gmail.com"
+            }
+        },
+        "courses": [
+            "Artificial Intelligence & Machine Learning",
+            "Agriculture Engineering",
+            "Mechanical Engineering",
+            "Electronics and Communication Engineering",
+            "Computer Science Engineering",
+            "Computer Science & Engineering (Data Science)",
+            "Computer Science & Design",
+            "IT Enabled Services Engineering",
+            "Civil Engineering",
+            "Computer Science & Engineering (IOT & Cyber Security Including Block Chain Technology)"
+        ],
+        "website": "https://www.aiet.org.in/"
+    },
+    "E007": {
+        "links": {
+            "placement": {
+                "url": "https://www.amcgroup.edu.in/placement",
+                "content": null
+            },
+            "hostel": {
+                "url": "https://www.amcgroup.edu.in/hostel",
+                "content": null
+            },
+            "infrastructure": {
+                "url": "https://www.amcgroup.edu.in/infrastructure",
+                "content": null
+            },
+            "academics": {
+                "url": "https://www.amcgroup.edu.in/academics",
+                "content": null
+            },
+            "admissions": {
+                "url": "https://www.amcgroup.edu.in/admission",
+                "content": null
+            },
+            "contact": {
+                "url": "https://www.amcgroup.edu.in/contact",
+                "content": "**Address:** Bannerghatta Road, Bengaluru, Karnataka - 560083\n**Phone:** +91 9902044114\n**Email:** admissions@amceducation.in"
+            }
+        },
+        "courses": [
+            "COMPUTER SCIENCE AND ENGINEERING",
+            "COMPUTER SCIENCE AND ENGINEERING(ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING)",
+            "INFORMATION SCIENCE AND ENGINEERING",
+            "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+            "ELECTRONICS AND COMMUNICATION ENGINEERING",
+            "MECHANICAL ENGINEERING",
+            "ELECTRICAL AND ELECTRONICS ENGINEERING",
+            "CIVIL ENGINEERING",
+            "AERONAUTICAL ENGINEERING",
+            "COMPUTER SCIENCE AND ENGINEERING(DATA SCIENCE)"
+        ],
+        "website": "https://www.amcgroup.edu.in/"
+    },
+    "E008": {
+        "links": {
+            "placement": {
+                "url": "https://aitmbgm.ac.in/category/placement-and-training-activities/",
+                "content": null
+            },
+            "hostel": {
+                "url": "https://asabgm.org/amenities-central-facility/",
+                "content": "**Availability:** Yes\n**Facilities:** Central Facility"
+            },
+            "infrastructure": {
+                "url": "https://asabgm.org/amenities-central-facility/",
+                "content": "**Facilities:** New Proposed Building, Central Facility"
+            },
+            "academics": {
+                "url": "https://asabgm.org/",
+                "content": "**Accreditation:** COA Approved\n**Affiliation:** VTU, Belagavi"
+            },
+            "admissions": {
+                "url": "https://asabgm.org/elementor-138/",
+                "content": null
+            },
+            "contact": {
+                "url": "http://aitmbgm.ac.in/contact-us/",
+                "content": "**Address:** Dr. Suresh C. Angadi Marg, Savagaon Road, Belgaum, Karnataka 590009\n**Phone:** 7022897604\n**Email:** admission@asabgm.org"
+            }
+        },
+        "courses": [
+            "Architecture"
+        ],
+        "website": "https://asabgm.org/"
+    },
+    "E009": {
+        "links": {
+            "placement": {
+                "url": "https://aitmbgm.ac.in/category/placement-and-training-activities/",
+                "content": "**Placement Year:** 2025"
+            },
+            "hostel": {
+                "url": "https://aitmbgm.ac.in/amenities-central-facility/",
+                "content": "**Availability:** Yes\n**Facilities:** Central Facility"
+            },
+            "infrastructure": {
+                "url": "https://aitmbgm.ac.in/amenities-central-facility/",
+                "content": "**Facilities:** Central Facility, Library, Labs"
+            },
+            "academics": {
+                "url": "https://aitmbgm.ac.in/",
+                "content": "**Accreditation:** NBA, NAAC\n**Affiliation:** VTU, Belagavi"
+            },
+            "admissions": {
+                "url": "https://aitmbgm.ac.in/admission-enquiry-form-2025-2026/",
+                "content": null
+            },
+            "contact": {
+                "url": "http://aitmbgm.ac.in/contact-us/",
+                "content": "**Address:** Dr. Suresh C. Angadi Marg, Savagaon Road, Belgaum, Karnataka 590009\n**Phone:** 0831 243 8123/100\n**Email:** info@aitmbgm.ac.in"
+            }
+        },
+        "courses": [
+            "Artificial Intelligence & Data Science",
+            "Robotics & Automation Engineering",
+            "Civil Engineering",
+            "Computer Science & Engineering",
+            "Electronics & Communication Engineering",
+            "Electrical & Electronics Engineering",
+            "Mechanical Engineering"
+        ],
+        "website": "https://aitmbgm.ac.in/"
+    },
+    "E010": {
+        "links": {
+            "placement": {
+                "url": "https://www.aitmbellary.ac.in/placements",
+                "content": null
+            },
+            "hostel": {
+                "url": "https://www.aitmbellary.ac.in/hostel",
+                "content": null
+            },
+            "infrastructure": {
+                "url": "https://www.aitmbellary.ac.in/infrastructure",
+                "content": null
+            },
+            "academics": {
+                "url": "https://www.aitmbellary.ac.in/academics",
+                "content": null
+            },
+            "admissions": {
+                "url": "https://www.aitmbellary.ac.in/admissions",
+                "content": null
+            },
+            "contact": {
+                "url": "https://www.aitmbellary.ac.in/contact",
+                "content": null
+            }
+        },
+        "courses": [],
+        "website": "https://www.aitmbellary.ac.in/"
+    },
+    "E011": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E012": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E013": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E014": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E015": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E016": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E017": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E019": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E020": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E021": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E023": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E024": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E026": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E027": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E028": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E030": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E032": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E033": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E035": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E036": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E037": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E038": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E039": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E040": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E041": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E042": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E043": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E044": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E045": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E046": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E048": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E049": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    },
+    "E050": {
+        "links": {
+            "placement": null,
+            "hostel": null,
+            "infrastructure": null,
+            "academics": null,
+            "admissions": null,
+            "contact": null
+        },
+        "courses": [],
+        "website": null
+    }
+}

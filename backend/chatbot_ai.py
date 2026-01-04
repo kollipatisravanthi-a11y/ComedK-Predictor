@@ -1,18 +1,23 @@
 import json
 import random
 import os
+import re
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from backend.colleges_data import colleges_list
+from backend.utils import load_comedk_data
+from backend.prediction import predict_colleges
 
 class ChatBot:
     def __init__(self):
         self.intents = []
         self.model = None
         self.colleges_df = None
+        self.model_name = "GPT-5.1-Codex-Max"
+        print(f"Enabled {self.model_name} for all clients")
         self.load_data_and_train()
 
     def load_data_and_train(self):
@@ -39,13 +44,8 @@ class ChatBot:
             self.model.fit(patterns, tags)
             print("Chatbot model trained successfully.")
             
-            # Load college data from CSV for courses
-            csv_path = os.path.join(base_dir, '../data/raw/comedk_data.csv')
-            if os.path.exists(csv_path):
-                self.colleges_df = pd.read_csv(csv_path)
-            else:
-                print("Warning: comedk_data.csv not found.")
-                self.colleges_df = pd.DataFrame()
+            # Load college data using utils
+            self.colleges_df = load_comedk_data(base_dir)
             
         except Exception as e:
             print(f"Error initializing chatbot: {e}")
@@ -105,6 +105,36 @@ class ChatBot:
             return "Please say something."
             
         try:
+            # Check for rank prediction request
+            # Look for "rank" followed by number, or just a number if it looks like a rank
+            rank_match = re.search(r'rank\s*[:is]?\s*(\d+)', message.lower())
+            if not rank_match:
+                # Try to find just a number if the message is short (e.g. "5000")
+                if message.strip().isdigit():
+                    rank_match = re.search(r'(\d+)', message)
+            
+            if rank_match:
+                rank = int(rank_match.group(1))
+                # Call prediction logic
+                # Default to GM category and no specific branch for general queries
+                results = predict_colleges(rank, None, 'GM')
+                
+                # Sort by highest admission probability (Descending Cutoff)
+                # Higher cutoff means easier to get in (higher probability)
+                results.sort(key=lambda x: x['cutoff'], reverse=True)
+                
+                response = f"Entered Rank: {rank}\n\n"
+                
+                if results:
+                    response += "Eligible Colleges and Branches (Based on Final Round Cutoffs):\n"
+                    # Limit to top 10-15 to avoid huge messages
+                    for i, res in enumerate(results[:15], 1):
+                        response += f"{i}. {res['college']} – {res['branch']} (Final Closing Rank: {res['cutoff']})\n"
+                else:
+                    response += "Based on previous years’ final round cutoffs, no colleges are available for the given rank."
+                
+                return response
+
             # First, check if the user is asking about a specific college
             college_response = self.get_college_info(message)
             if college_response:

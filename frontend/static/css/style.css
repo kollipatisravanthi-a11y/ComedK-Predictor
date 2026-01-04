@@ -285,3 +285,13 @@ footer a:hover {
        Let's keep it light/neutral for now as the base theme is mixed. */
 }
 
+
+/* College Details Preview Hover */
+.hover-preview {
+    transition: all 0.2s;
+}
+.hover-preview:hover {
+    background-color: #e2e6ea !important;
+    border-color: #adb5bd !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

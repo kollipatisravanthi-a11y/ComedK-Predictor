@@ -5,7 +5,10 @@ def analyze_cutoffs(data_path):
     """
     Performs analysis on the COMEDK dataset.
     """
-    df = pd.read_csv(data_path)
+    if data_path.endswith('.xlsx') or data_path.endswith('.xls'):
+        df = pd.read_excel(data_path)
+    else:
+        df = pd.read_csv(data_path)
     
     # Example: Branch-wise cutoff analysis
     # ... code to generate charts ...

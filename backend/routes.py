@@ -1,7 +1,30 @@
 from backend.app import app
 from flask import render_template, request, jsonify
-from backend.prediction import predict_colleges
+from backend.prediction import predict_colleges, get_college_courses
 from backend.chatbot_ai import chatbot
+from backend.college_agent import college_agent
+from backend.colleges_data import colleges_list, architecture_colleges, medical_colleges, dental_colleges
+from backend.branches_data import engineering_branches, architecture_branches
+from backend.college_details_data import get_college_explicit_data
+import json
+import os
+
+# Load enriched data if available
+ENRICHED_DATA_FILE = os.path.join(os.path.dirname(__file__), 'college_data_enriched.json')
+ENRICHED_DATA = {}
+
+def load_enriched_data():
+    global ENRICHED_DATA
+    if os.path.exists(ENRICHED_DATA_FILE):
+        try:
+            with open(ENRICHED_DATA_FILE, 'r', encoding='utf-8') as f:
+                ENRICHED_DATA = json.load(f)
+            print(f"Loaded enriched data for {len(ENRICHED_DATA)} colleges.")
+        except Exception as e:
+            print(f"Error loading enriched data: {e}")
+
+# Initial load
+load_enriched_data()
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -9,6 +32,58 @@ def chat():
     user_message = data.get('message', '')
     response = chatbot.get_response(user_message)
     return jsonify({'response': response})
+
+@app.route('/api/college-data/<college_code>')
+def get_college_data_api(college_code):
+    # Reload data if empty or if college not found (to pick up new prefetch data)
+    if not ENRICHED_DATA or college_code not in ENRICHED_DATA:
+        load_enriched_data()
+
+    # Check enriched data first (Part 3: Prefetched content)
+    if college_code in ENRICHED_DATA:
+        data = ENRICHED_DATA[college_code]
+        return jsonify({
+            "source": "explicit",
+            "links": data['links'],
+            "courses": data['courses']
+        })
+
+    # First check for explicit data (Part 1 & 2 of requirement)
+    explicit_data = get_college_explicit_data(college_code)
+    if explicit_data:
+        return jsonify({
+            "source": "explicit",
+            "links": explicit_data['links'],
+            "courses": explicit_data['courses']
+        })
+
+    # Fallback: Return basic info from static list without live fetching
+    college = next((c for c in colleges_list if c['code'] == college_code), None)
+    if not college:
+        college = next((c for c in architecture_colleges if c['code'] == college_code), None)
+    if not college:
+        college = next((c for c in medical_colleges if c['code'] == college_code), None)
+    if not college:
+        college = next((c for c in dental_colleges if c['code'] == college_code), None)
+    
+    if not college:
+        return jsonify({"error": "College not found"}), 404
+
+    # Return basic structure if no enriched data available
+    # The seeding agent should be run to populate this data
+    return jsonify({
+        "source": "explicit",
+        "links": {
+            "placement": None,
+            "hostel": None,
+            "infrastructure": None,
+            "academics": None,
+            "admissions": None,
+            "contact": None
+        },
+        "courses": [],
+        "website": college.get('website')
+    })
 
 @app.route('/')
 def home():
@@ -18,11 +93,54 @@ def home():
 def exam_details():
     return render_template('exam_details.html')
 
-from backend.colleges_data import colleges_list, architecture_colleges
-
 @app.route('/colleges')
 def colleges():
-    return render_template('colleges.html', engineering_colleges=colleges_list, architecture_colleges=architecture_colleges)
+    return render_template('colleges.html', engineering_colleges=colleges_list, architecture_colleges=architecture_colleges, medical_colleges=medical_colleges, dental_colleges=dental_colleges)
+
+@app.route('/college/<college_code>')
+def college_details(college_code):
+    # Find college details from the static list
+    college = next((c for c in colleges_list if c['code'] == college_code), None)
+    if not college:
+        college = next((c for c in architecture_colleges if c['code'] == college_code), None)
+    if not college:
+        college = next((c for c in medical_colleges if c['code'] == college_code), None)
+    if not college:
+        college = next((c for c in dental_colleges if c['code'] == college_code), None)
+        
+    if not college:
+        return "College not found", 404
+        
+    courses = get_college_courses(college_code)
+
+    # Always reload enriched data to ensure latest updates are shown
+    load_enriched_data()
+    
+    enriched_data = None
+    if college_code in ENRICHED_DATA:
+        enriched_data = ENRICHED_DATA[college_code]
+    
+    if not enriched_data:
+         # Empty structure
+         enriched_data = {
+            "links": {
+                "placement": None, "hostel": None, "infrastructure": None,
+                "academics": None, "admissions": None, "contact": None
+            },
+            "courses": []
+         }
+
+    # Merge explicit data (prioritize explicit links)
+    explicit = get_college_explicit_data(college_code)
+    if explicit and 'links' in explicit:
+        for key, url in explicit['links'].items():
+            if url:
+                if key not in enriched_data['links'] or enriched_data['links'][key] is None:
+                     enriched_data['links'][key] = {'url': url, 'content': None}
+                elif isinstance(enriched_data['links'][key], dict):
+                     enriched_data['links'][key]['url'] = url
+
+    return render_template('college_details.html', college=college, courses=courses, enriched_data=enriched_data)
 
 @app.route('/predictor', methods=['GET', 'POST'])
 def predictor():
@@ -34,7 +152,7 @@ def predictor():
         results = predict_colleges(rank, branch, category)
 
         return render_template('results.html', results=results, rank=rank, branch=branch)
-    return render_template('predictor.html')
+    return render_template('predictor.html', engineering_branches=engineering_branches, architecture_branches=architecture_branches)
 
 @app.route('/results')
 def results():
@@ -42,107 +160,4 @@ def results():
 
 @app.route('/courses')
 def courses():
-    engineering_branches = [
-        {"sl_no": 1, "name": "Aeronautical Engineering", "code": "AE"},
-        {"sl_no": 2, "name": "Aerospace Engineering", "code": "AS"},
-        {"sl_no": 3, "name": "Agriculture Engineering", "code": "AL"},
-        {"sl_no": 4, "name": "Agricultural Engineering", "code": "AG"},
-        {"sl_no": 5, "name": "Artificial Intelligence & Data Science", "code": "AD"},
-        {"sl_no": 6, "name": "Artificial Intelligence & Machine Learning", "code": "AI"},
-        {"sl_no": 7, "name": "Automation & Robotics Engineering", "code": "AR"},
-        {"sl_no": 8, "name": "Automobile Engineering", "code": "AU"},
-        {"sl_no": 9, "name": "Automotive Engineering", "code": "AVE"},
-        {"sl_no": 10, "name": "Bachelor of Design", "code": "BD"},
-        {"sl_no": 11, "name": "Bachelor of Urban & Regional Planning", "code": "BP"},
-        {"sl_no": 12, "name": "Bachelor of Planning", "code": "BPL"},
-        {"sl_no": 13, "name": "Bachelor of Design (Fashion Design)", "code": "BFD"},
-        {"sl_no": 14, "name": "Bachelor of Design (Industrial Design)", "code": "BID"},
-        {"sl_no": 15, "name": "Bachelor of Design (Lifestyle & Accessory Design)", "code": "BLD"},
-        {"sl_no": 16, "name": "Bachelor of Design (Communication & Design)", "code": "BDC"},
-        {"sl_no": 17, "name": "Bio Electronics Engineering", "code": "BEE"},
-        {"sl_no": 18, "name": "Bio Medical Engineering", "code": "BM"},
-        {"sl_no": 19, "name": "Biotechnology", "code": "BT"},
-        {"sl_no": 20, "name": "Ceramic And Cement Technology", "code": "CC"},
-        {"sl_no": 21, "name": "Chemical Engineering", "code": "CH"},
-        {"sl_no": 22, "name": "Civil (Construction Engineering & Management)", "code": "CVC"},
-        {"sl_no": 23, "name": "Civil Construction & Sustainability Engineering", "code": "CCS"},
-        {"sl_no": 24, "name": "Civil Engineering", "code": "CV"},
-        {"sl_no": 25, "name": "Civil Engineering (Kannada)", "code": "CK"},
-        {"sl_no": 26, "name": "Civil Engineering (SC)", "code": "CVS"},
-        {"sl_no": 27, "name": "Civil Engineering with Computer Application", "code": "CCA"},
-        {"sl_no": 28, "name": "Computer & Communication Engineering", "code": "CM"},
-        {"sl_no": 29, "name": "Computer Engineering", "code": "CE"},
-        {"sl_no": 30, "name": "Computer Science", "code": "CR"},
-        {"sl_no": 31, "name": "Computer Science & Business Systems", "code": "CB"},
-        {"sl_no": 32, "name": "Computer Science & Design", "code": "CG"},
-        {"sl_no": 33, "name": "Computer Science & Engineering", "code": "CS"},
-        {"sl_no": 34, "name": "Computer Science & Engineering (AI & ML)", "code": "CI"},
-        {"sl_no": 35, "name": "Computer Science & Engineering (AI)", "code": "CA"},
-        {"sl_no": 36, "name": "Computer Science & Engineering (Block Chain)", "code": "CSB"},
-        {"sl_no": 37, "name": "Computer Science & Engineering (Cyber Security)", "code": "CY"},
-        {"sl_no": 38, "name": "Computer Science & Engineering (Data Science)", "code": "CD"},
-        {"sl_no": 39, "name": "Computer Science & Engineering (IOT & Cyber Security Incl. Block Chain)", "code": "IC"},
-        {"sl_no": 40, "name": "Computer Science & Engineering (IOT)", "code": "CO"},
-        {"sl_no": 41, "name": "Computer Science & Engineering (Networks)", "code": "CNW"},
-        {"sl_no": 42, "name": "Computer Science & Engineering (SC)", "code": "CSS"},
-        {"sl_no": 43, "name": "Computer Science & Information Technology", "code": "CIT"},
-        {"sl_no": 44, "name": "Computer Science & Technology", "code": "CN"},
-        {"sl_no": 45, "name": "Computer Science & Technology (Big Data)", "code": "CBD"},
-        {"sl_no": 46, "name": "Computer Science & Technology (DevOps)", "code": "CSD"},
-        {"sl_no": 47, "name": "Construction Technology & Management", "code": "CT"},
-        {"sl_no": 48, "name": "Cyber Security", "code": "CX"},
-        {"sl_no": 49, "name": "Data Science", "code": "DS"},
-        {"sl_no": 50, "name": "Electrical & Computer Engineering", "code": "ECE"},
-        {"sl_no": 51, "name": "Electrical & Electronics Engineering", "code": "EE"},
-        {"sl_no": 52, "name": "Electronics & Communication (Industry Integrated)", "code": "EII"},
-        {"sl_no": 53, "name": "Electronics & Communication Engineering", "code": "EC"},
-        {"sl_no": 54, "name": "Electronics & Communication Engineering (SC)", "code": "ECS"},
-        {"sl_no": 55, "name": "Electronics & Computer Engineering", "code": "UE"},
-        {"sl_no": 56, "name": "Electronics & Computer Science", "code": "ES"},
-        {"sl_no": 57, "name": "Electronics & Instrumentation Engineering", "code": "EI"},
-        {"sl_no": 58, "name": "Electronics & Telecommunication Engineering", "code": "ET"},
-        {"sl_no": 59, "name": "Electronics Engg. (VLSI Design & Technology)", "code": "VL"},
-        {"sl_no": 60, "name": "Electronics & Communication Engineering (VLSI Design & Technology)", "code": "ECV"},
-        {"sl_no": 61, "name": "Energy Engineering", "code": "EN"},
-        {"sl_no": 62, "name": "Industrial & Production Engineering", "code": "IP"},
-        {"sl_no": 63, "name": "Industrial Engineering & Management", "code": "IM"},
-        {"sl_no": 64, "name": "Information Science & Engineering", "code": "IS"},
-        {"sl_no": 65, "name": "Information Science & Technology", "code": "IST"},
-        {"sl_no": 66, "name": "Information Technology", "code": "INT"},
-        {"sl_no": 67, "name": "Information Technology (AR / VR)", "code": "IAR"},
-        {"sl_no": 68, "name": "Information Technology (Data Analytics)", "code": "IDA"},
-        {"sl_no": 69, "name": "Instrumentation Technology", "code": "IT"},
-        {"sl_no": 70, "name": "Marine Engineering", "code": "MR"},
-        {"sl_no": 71, "name": "Mathematics & Computing", "code": "MAC"},
-        {"sl_no": 72, "name": "Mechanical & Aerospace Engineering", "code": "MAE"},
-        {"sl_no": 73, "name": "Mechanical Engineering", "code": "ME"},
-        {"sl_no": 74, "name": "Mechanical Engineering (SC)", "code": "MES"},
-        {"sl_no": 75, "name": "Mechatronics Engineering", "code": "MT"},
-        {"sl_no": 76, "name": "Medical Electronics Engineering", "code": "MD"},
-        {"sl_no": 77, "name": "Mining Engineering", "code": "MI"},
-        {"sl_no": 78, "name": "Nano Technology", "code": "NT"},
-        {"sl_no": 79, "name": "Petroleum Engineering", "code": "PTE"},
-        {"sl_no": 80, "name": "Robotics", "code": "ROB"},
-        {"sl_no": 81, "name": "Robotics & Artificial Intelligence", "code": "RI"},
-        {"sl_no": 82, "name": "Robotics & Automation", "code": "RA"},
-        {"sl_no": 83, "name": "Robotics & Mechatronics", "code": "ROM"},
-        {"sl_no": 84, "name": "Smart Agritech", "code": "SA"},
-        {"sl_no": 85, "name": "Telecommunication Engineering", "code": "TE"},
-        {"sl_no": 86, "name": "Textile Technology", "code": "TX"},
-        {"sl_no": 87, "name": "VLSI", "code": "VLS"},
-        {"sl_no": 88, "name": "Computer Science & Engineering (Artificial Intelligence & Data Science)", "code": "CAD"}
-    ]
-
-    architecture_branches = [
-        {"sl_no": 1, "name": "Bachelor of Architecture (B.Arch)", "code": "AT"},
-        {"sl_no": 2, "name": "Bachelor of Urban & Regional Planning", "code": "BP"},
-        {"sl_no": 3, "name": "Bachelor of Design", "code": "BD"},
-        {"sl_no": 4, "name": "Bachelor of Design (Fashion Design)", "code": "BFD"},
-        {"sl_no": 5, "name": "Bachelor of Design (Industrial Design)", "code": "BID"},
-        {"sl_no": 6, "name": "Bachelor of Design (Lifestyle & Accessory Design)", "code": "BLD"},
-        {"sl_no": 7, "name": "Bachelor of Design (Communication & Design)", "code": "BDC"},
-        {"sl_no": 8, "name": "Bachelor of Planning", "code": "BPL"},
-        {"sl_no": 9, "name": "B. Design (Interior Design)", "code": "BIN"}
-    ]
-
     return render_template('courses.html', engineering_branches=engineering_branches, architecture_branches=architecture_branches)
