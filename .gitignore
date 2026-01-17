@@ -9,6 +9,4 @@ venv/
 *.log
 .DS_Store
 
-predictions_2026.csv
-backend/enriched_predictions.json
-data/processed/
+
