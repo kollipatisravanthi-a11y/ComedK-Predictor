@@ -167,17 +167,11 @@ def college_details(college_code):
             "courses": []
          }
 
-    # Merge explicit data (prioritize explicit links)
-    explicit = get_college_explicit_data(college_code)
-    if explicit and 'links' in explicit:
-        for key, url in explicit['links'].items():
-            if url:
-                if key not in enriched_data['links'] or enriched_data['links'][key] is None:
-                     enriched_data['links'][key] = {'url': url, 'content': None}
-                elif isinstance(enriched_data['links'][key], dict):
-                     enriched_data['links'][key]['url'] = url
 
-    return render_template('college_details.html', college=college, courses=courses, enriched_data=enriched_data)
+    # Merge explicit data (prioritize explicit links)
+    # EXPLICIT DATA LOGIC REMOVED AS REQUESTED
+    
+    return render_template('college_details.html', college=college, courses=courses, enriched_data=None)
 
 @app.route('/predictor', methods=['GET', 'POST'])
 def predictor():

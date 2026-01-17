@@ -28,50 +28,8 @@
             </div>
             {% endif %}
 
-            <!-- Verified Information Section -->
-            <div class="card shadow-lg border-0 mb-5">
-                <div class="card-header bg-success text-white py-3">
-                    <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i>Verified Information (Official Website)</h4>
-                </div>
-                <div class="card-body" id="verified-info-container">
-                    {% if enriched_data %}
-                        {% macro render_card(title, info, color_class) %}
-                            {% set url = info.url if info and info.url else None %}
-                            {% set content = info.content if info and info.content else None %}
-                            
-                            <div class="col-md-6 mb-4">
-                                <div class="card h-100 border-{{ color_class }}">
-                                    <div class="card-header bg-{{ color_class }} text-white">
-                                        <h5 class="mb-0">{{ title }}</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        {% if url %}
-                                            <a href="{{ url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-{{ color_class }} w-100 mb-2">🔗 Official {{ title }} Page</a>
-                                        {% else %}
-                                            <p class="text-muted small text-center mb-0">Link not available</p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endmacro %}
-
-                        <div class="row">
-                            {{ render_card('Placements', enriched_data.links.placement, 'primary') }}
-                            {{ render_card('Hostel', enriched_data.links.hostel, 'info') }}
-                            {{ render_card('Infrastructure', enriched_data.links.infrastructure, 'secondary') }}
-                            {{ render_card('Academics', enriched_data.links.academics, 'warning') }}
-                            {{ render_card('Admissions', enriched_data.links.admissions, 'danger') }}
-                            {{ render_card('Contact', enriched_data.links.contact, 'dark') }}
-                        </div>
-
-                    {% else %}
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i> Verified data not available for this college yet.
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-
+            <!-- Verified Information Section REMOVED -->
+            
         </div>
         <div class="card-footer bg-light p-3">
             <a href="/colleges" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>Back to Colleges List</a>
