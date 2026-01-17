@@ -47,27 +47,8 @@
                                     <div class="card-body">
                                         {% if url %}
                                             <a href="{{ url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-{{ color_class }} w-100 mb-2">🔗 Official {{ title }} Page</a>
-                                        {% endif %}
-
-                                        {% if content and 'Error 404' not in content and 'Page not found' not in content %}
-                                            {% set inner_content %}
-                                                <div class="bg-light p-2 rounded border small mt-2 {{ 'hover-preview' if url else '' }}" 
-                                                     style="max-height: 200px; overflow-y: auto; font-size: 0.85rem;">
-                                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                                        <strong class="text-{{ color_class }}">Preview Info:</strong>
-                                                        {% if url %}
-                                                            <small class="text-muted"><i class="fas fa-external-link-alt"></i></small>
-                                                        {% endif %}
-                                                    </div>
-                                                    <div style="white-space: pre-line; color: #212529;">{{ content }}</div>
-                                                </div>
-                                            {% endset %}
-
-                                            {% if url %}
-                                                <a href="{{ url }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none d-block" title="Click to visit official page">{{ inner_content }}</a>
-                                            {% else %}
-                                                {{ inner_content }}
-                                            {% endif %}
+                                        {% else %}
+                                            <p class="text-muted small text-center mb-0">Link not available</p>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -81,24 +62,6 @@
                             {{ render_card('Academics', enriched_data.links.academics, 'warning') }}
                             {{ render_card('Admissions', enriched_data.links.admissions, 'danger') }}
                             {{ render_card('Contact', enriched_data.links.contact, 'dark') }}
-                        </div>
-
-                        <!-- Courses Section from Enriched Data -->
-                        <div class="card shadow-sm border-0 mt-4">
-                            <div class="card-header bg-dark text-white">
-                                <h4 class="mb-0">Courses Offered (Verified)</h4>
-                            </div>
-                            <div class="card-body">
-                                {% if enriched_data.courses and enriched_data.courses|length > 0 %}
-                                    <ul class="list-group list-group-flush">
-                                        {% for course in enriched_data.courses %}
-                                            <li class="list-group-item"><i class="fas fa-book-open me-2 text-primary"></i>{{ course }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <p class="text-muted">No verified course information available for this college.</p>
-                                {% endif %}
-                            </div>
                         </div>
 
                     {% else %}

@@ -1,13 +1,26 @@
-from backend.app import app
-from flask import render_template, request, jsonify
-from backend.prediction import predict_colleges, get_college_courses
-from backend.chatbot_ai import chatbot
-from backend.college_agent import college_agent
-from backend.colleges_data import colleges_list, architecture_colleges, medical_colleges, dental_colleges
-from backend.branches_data import engineering_branches, architecture_branches
-from backend.college_details_data import get_college_explicit_data
 import json
 import os
+
+import pandas as pd
+from flask import jsonify, render_template, request
+from sqlalchemy import create_engine, inspect, text
+
+from backend.app import app
+from backend.branches_data import architecture_branches, engineering_branches
+from backend.chatbot_ai import chatbot
+from backend.college_agent import college_agent
+from backend.college_details_data import get_college_explicit_data
+from backend.colleges_data import architecture_colleges, colleges_list, dental_colleges, medical_colleges
+
+# Removed unused imports
+# from backend.prediction import get_college_courses
+# from backend.prediction_2025 import predictor_2025
+
+engine = create_engine(
+    "mssql+pyodbc://@localhost\\SQLEXPRESS/COMEDK_DB"
+    "?driver=ODBC+Driver+17+for+SQL+Server"
+    "&trusted_connection=yes"
+)
 
 # Load enriched data if available
 ENRICHED_DATA_FILE = os.path.join(os.path.dirname(__file__), 'college_data_enriched.json')
@@ -97,6 +110,28 @@ def exam_details():
 def colleges():
     return render_template('colleges.html', engineering_colleges=colleges_list, architecture_colleges=architecture_colleges, medical_colleges=medical_colleges, dental_colleges=dental_colleges)
 
+
+def get_college_courses_db(college_code):
+    try:
+        # Fetch unique branches for 2026 predictions (which represent 2025 active courses)
+        with engine.connect() as conn:
+            # Check columns first
+            inspector = inspect(engine)
+            columns = {col['name'] for col in inspector.get_columns('predictions_2026')}
+            
+            if 'branch_code' in columns:
+                query = text("SELECT DISTINCT branch, branch_code FROM predictions_2026 WHERE college_code = :code AND branch NOT LIKE '%Arch%' ORDER BY branch")
+                result = conn.execute(query, {"code": college_code})
+                courses = [{"name": row[0], "code": row[1]} for row in result]
+            else:
+                query = text("SELECT DISTINCT branch FROM predictions_2026 WHERE college_code = :code AND branch NOT LIKE '%Arch%' ORDER BY branch")
+                result = conn.execute(query, {"code": college_code})
+                courses = [{"name": row[0], "code": None} for row in result]
+        return courses
+    except Exception as e:
+        print(f"Error fetching courses for {college_code}: {e}")
+        return []
+
 @app.route('/college/<college_code>')
 def college_details(college_code):
     # Find college details from the static list
@@ -111,7 +146,8 @@ def college_details(college_code):
     if not college:
         return "College not found", 404
         
-    courses = get_college_courses(college_code)
+    # Use DB function instead of deleted module
+    courses = get_college_courses_db(college_code)
 
     # Always reload enriched data to ensure latest updates are shown
     load_enriched_data()
@@ -144,14 +180,101 @@ def college_details(college_code):
 
 @app.route('/predictor', methods=['GET', 'POST'])
 def predictor():
+    error = None
+    results = []
+
     if request.method == 'POST':
-        rank = request.form.get('rank')
-        branch = request.form.getlist('branch')
+        try:
+            rank = int(request.form.get('rank', '').strip())
+        except (TypeError, ValueError):
+            rank = None
+            error = "Please enter a valid numeric rank."
+
         category = request.form.get('category')
 
-        results = predict_colleges(rank, branch, category)
+        if rank is not None and category:
+            inspector = inspect(engine)
+            columns = {col['name'] for col in inspector.get_columns('predictions_2026')}
 
-        return render_template('results.html', results=results, rank=rank, branch=branch)
+            # Fallback if legacy table lacks category column
+            if 'category' in columns:
+                # Check for branch_code column
+                has_branch_code = 'branch_code' in columns
+                select_clause = "college_code, college_name, branch, " + ("branch_code, " if has_branch_code else "") + "round, category, predicted_closing_rank"
+                
+                sql = text(
+                    f"""
+                    SELECT {select_clause}
+                    FROM predictions_2026
+                    WHERE predicted_closing_rank >= :rank
+                      AND category = :category
+                    ORDER BY predicted_closing_rank ASC
+                    """
+                )
+                params = {"rank": rank, "category": category}
+            else:
+                # Check for branch_code column
+                has_branch_code = 'branch_code' in columns
+                select_clause = "college_code, college_name, branch, " + ("branch_code, " if has_branch_code else "") + "round, NULL AS category, predicted_closing_rank"
+                
+                sql = text(
+                    f"""
+                    SELECT {select_clause}
+                    FROM predictions_2026
+                    WHERE predicted_closing_rank >= :rank
+                    ORDER BY predicted_closing_rank ASC
+                    """
+                )
+                params = {"rank": rank}
+
+            with engine.begin() as conn:
+                df = pd.read_sql_query(sql, conn, params=params)
+            
+            # --- START FILTER LOGIC ---
+            if not df.empty:
+                # 1. Filter out Architecture or Medical if present (User requested only B.E/B.Tech for results display)
+                # Identify filtered codes
+                arch_codes = [b['code'] for b in architecture_branches]
+                
+                # Filter by branch_code if column exists, otherwise weak filter by name?
+                # The DB has 'branch_code', so use it if available in DF.
+                if 'branch_code' in df.columns:
+                     # Remove architecture codes
+                     df = df[~df['branch_code'].isin(arch_codes)]
+                
+                # Extract numeric round for sorting
+                # Note: 'round' might be 'R1', 'R2', or just '1', '2'
+                df['round_num'] = df['round'].astype(str).str.extract(r'(\d+)').fillna(0).astype(int)
+                
+                # Match official names BEFORE deduplication so we sort by the correct name
+                all_colleges = colleges_list + architecture_colleges + medical_colleges + dental_colleges
+                code_to_name = {c['code']: c['name'] for c in all_colleges}
+                
+                def get_official_name(row):
+                    code = row.get('college_code')
+                    return code_to_name.get(code, row.get('college_name'))
+                
+                df['college_name'] = df.apply(get_official_name, axis=1)
+
+                # Sort by College, Branch, Round (Ascending)
+                # Keep ONLY the EARLIEST round for each college+branch combination I qualify for
+                df.sort_values(by=['college_name', 'branch', 'round_num'], ascending=[True, True, True], inplace=True)
+                df.drop_duplicates(subset=['college_name', 'branch'], keep='first', inplace=True)
+                
+                # Final sort by Closing Rank
+                df.sort_values(by=['predicted_closing_rank'], ascending=True, inplace=True)
+                
+                results = df.to_dict(orient='records')
+            else:
+                results = []
+            # --- END FILTER LOGIC ---
+
+            # Skip the old loop since we handled name mapping and deduplication above
+            # (Old loop code was lines 206-224)
+        elif not error:
+            error = "Rank and category are required."
+
+        return render_template('results.html', results=results, rank=rank, category=category, branch="All Courses", error=error)
     return render_template('predictor.html', engineering_branches=engineering_branches, architecture_branches=architecture_branches)
 
 @app.route('/results')

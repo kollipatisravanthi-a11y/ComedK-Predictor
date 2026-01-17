@@ -37,6 +37,18 @@
             background-color: #6c757d !important; /* Secondary */
             color: white !important;
         }
+        @keyframes pop-highlight {
+            0% { transform: scale(1); box-shadow: none; background-color: transparent; }
+            20% { transform: scale(1.02); box-shadow: 0 0 20px rgba(13, 110, 253, 0.6); background-color: rgba(13, 110, 253, 0.2); z-index: 10; position: relative; border-radius: 5px; }
+            80% { transform: scale(1.02); box-shadow: 0 0 20px rgba(13, 110, 253, 0.6); background-color: rgba(13, 110, 253, 0.2); z-index: 10; position: relative; border-radius: 5px; }
+            100% { transform: scale(1); box-shadow: none; background-color: transparent; }
+        }
+        .highlight-row {
+            animation: pop-highlight 2s ease-in-out;
+        }
+        .highlight-row td {
+            transition: background-color 0.3s;
+        }
     </style>
 
     <div class="tab-content" id="courseTabsContent">
@@ -106,7 +118,7 @@
                             </thead>
                             <tbody>
                                 {% for branch in engineering_branches %}
-                                <tr>
+                                <tr id="code-{{ branch.code }}">
                                     <td class="py-2 px-4">{{ branch.sl_no }}</td>
                                     <td class="py-2 px-4 fw-medium">{{ branch.name }}</td>
                                     <td class="py-2 px-4"><span class="badge bg-secondary">{{ branch.code }}</span></td>
@@ -137,7 +149,7 @@
                             </thead>
                             <tbody>
                                 {% for branch in architecture_branches %}
-                                <tr>
+                                <tr id="code-{{ branch.code }}">
                                     <td class="py-2 px-4">{{ branch.sl_no }}</td>
                                     <td class="py-2 px-4 fw-medium">{{ branch.name }}</td>
                                     <td class="py-2 px-4"><span class="badge bg-secondary">{{ branch.code }}</span></td>
@@ -156,8 +168,79 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Handle URL parameters for highlighting
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        
+        if (code) {
+            const rowId = 'code-' + code;
+            const row = document.getElementById(rowId);
+            
+            if (row) {
+                // Find which tab this row belongs to
+                const tabPane = row.closest('.tab-pane');
+                if (tabPane) {
+                    const tabId = tabPane.id;
+                    const tabTrigger = document.querySelector(`[data-bs-target="#${tabId}"]`);
+                    
+                    if (tabTrigger) {
+                        // Activate the tab
+                        const tab = new bootstrap.Tab(tabTrigger);
+                        tab.show();
+                        
+                        // Wait for tab transition, then scroll and highlight
+                        setTimeout(() => {
+                            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            row.classList.add('highlight-row');
+                        }, 200);
+                    }
+                }
+            }
+        }
+
         const searchInput = document.getElementById('courseSearch');
         
+        // Handle URL Parameters for auto-search/highlight
+        const urlParams = new URLSearchParams(window.location.search);
+        const codeParam = urlParams.get('code');
+        
+        if (codeParam) {
+            searchInput.value = codeParam;
+            // Trigger search immediately
+            const event = new Event('keyup');
+            searchInput.dispatchEvent(event);
+            
+            // Wait for search to apply then switch tabs if needed
+            setTimeout(() => {
+                // Check where the code was found
+                // If finding by code, it's likely in tables (Engineering/Architecture)
+                const tables = document.querySelectorAll('.table');
+                let found = false;
+                
+                tables.forEach(table => {
+                    if (found) return;
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                         if (found) return;
+                         const code = row.cells[2].textContent.toLowerCase(); // Code is 3rd column (index 2)
+                         if (code.includes(codeParam.toLowerCase())) {
+                             // Switch to this tab
+                             const tabPane = table.closest('.tab-pane');
+                             if (tabPane) {
+                                  const tabId = tabPane.id;
+                                  const tabButton = document.querySelector(`button[data-bs-target="#${tabId}"]`);
+                                  if (tabButton) tabButton.click();
+                             }
+                             // Highlight
+                             row.classList.add('highlight-row');
+                             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                             found = true;
+                         }
+                    });
+                });
+            }, 300);
+        }
+
         searchInput.addEventListener('keyup', function() {
             const searchTerm = this.value.toLowerCase();
             

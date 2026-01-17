@@ -3,6 +3,25 @@ from bs4 import BeautifulSoup
 import re
 from urllib.parse import urljoin, urlparse
 from googlesearch import search
+import json
+import os
+import sys
+
+# Setup path to import sibling modules if running as script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
+
+# Predictor import removed as it is handled by the database layer now.
+# try:
+#     from backend.prediction_2025 import predictor_2025
+# except ImportError:
+#     try:
+#         from prediction_2025 import predictor_2025
+#     except ImportError:
+#         predictor_2025 = None
+#         print("Warning: Could not import predictor_2025. Make sure prediction_2025.py is in the same directory.")
 
 class CollegeAgent:
     def __init__(self):
@@ -14,6 +33,7 @@ class CollegeAgent:
             'getmyuni.com', 'collegedekho.com', 'justdial.com', 'facebook.com', 
             'linkedin.com', 'instagram.com', 'youtube.com', 'twitter.com'
         ]
+        self.prediction_file = os.path.join(os.path.dirname(__file__), 'prediction_2025.json')
 
     def is_official_domain(self, url):
         domain = urlparse(url).netloc.lower()
@@ -258,4 +278,95 @@ class CollegeAgent:
 
         return data
 
+    def load_prediction_results(self):
+        """Load prediction results from prediction_2025 file"""
+        if not os.path.exists(self.prediction_file):
+            return None
+            
+        try:
+            with open(self.prediction_file, 'r') as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            print(f"Error decoding prediction file")
+            return None
+
+    def enrich_predictions_with_college_data(self, predictions):
+        """Enrich prediction results with college details from web scraping"""
+        if not predictions:
+            return None
+        
+        enriched_results = []
+        
+        # Handle both list and dict formats
+        colleges = []
+        if isinstance(predictions, list):
+            colleges = predictions
+        elif isinstance(predictions, dict):
+            colleges = predictions.get('colleges', [])
+        
+        print(f"Found {len(colleges)} colleges to process")
+        
+        # Limit to top 5 for demo to prevent long execution times, remove slice [:5] for full run
+        for college_info in colleges[:5]: 
+            # Handle different key names for college name
+            college_name = college_info.get('college_name') or college_info.get('name') or college_info.get('college')
+            
+            if not college_name:
+                continue
+
+            print(f"\nProcessing: {college_name}")
+            try:
+                # First check if we already have data (simple caching logic could go here)
+                college_data = self.get_college_data(None, college_name)
+                
+                # Merge prediction data with scraped data
+                enriched_college = {
+                    **college_info,
+                    'details': college_data
+                }
+                enriched_results.append(enriched_college)
+            except Exception as e:
+                print(f"Failed to fetch data for {college_name}: {str(e)}")
+                enriched_results.append(college_info)
+        
+        return enriched_results
+
+    def process_and_save_enriched_predictions(self, rank=None, category='GM', output_file='enriched_predictions.json'):
+        """Generate predictions, enrich with college data, and save results"""
+        print(f"Starting prediction and enrichment process...")
+        
+        predictions = []
+        
+        # 1. Use live predictor if available (Priority)
+        if predictor_2025:
+            # If no rank provided, use a default rank that yields results for testing 
+            search_rank = rank if rank else 10000 
+            print(f"Generating live predictions for Rank: {search_rank}, Category: {category}...")
+            predictions = predictor_2025.predict(search_rank, category)
+            print(f"Predictor returned {len(predictions)} results.")
+        
+        # 2. If valid predictions weren't generated, try loading file
+        if not predictions:
+            print(f"No live predictions generated. Checking for file: {self.prediction_file}")
+            predictions = self.load_prediction_results()
+
+        if not predictions:
+            print("Error: No predictions available to enrich.")
+            return {"error": "Failed to generate or load predictions"}
+        
+        enriched_data = self.enrich_predictions_with_college_data(predictions)
+        
+        # Save enriched data
+        output_path = os.path.join(os.path.dirname(__file__), output_file)
+        with open(output_path, 'w') as f:
+            json.dump(enriched_data, f, indent=2)
+        
+        print(f"\nEnriched predictions saved to: {output_path}")
+        return enriched_data
+
 college_agent = CollegeAgent()
+
+if __name__ == "__main__":
+    # Test Run: Connect prediction with enrichment
+    # Using Rank 15000 GM as a test case
+    college_agent.process_and_save_enriched_predictions(rank=15000, category='GM')

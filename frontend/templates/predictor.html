@@ -20,21 +20,11 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="branch" class="form-label fw-bold">Preferred Branch(es)</label>
-                            <p class="text-muted small mb-2">Hold Ctrl (Windows) or Command (Mac) to select multiple options.</p>
+                            <label for="course_type" class="form-label fw-bold">Course</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="fas fa-code-branch text-primary"></i></span>
-                                <select class="form-select form-select-lg" id="branch" name="branch" multiple size="8">
-                                    <optgroup label="Engineering">
-                                        {% for branch in engineering_branches %}
-                                            <option value="{{ branch.code }}">{{ branch.name }}</option>
-                                        {% endfor %}
-                                    </optgroup>
-                                    <optgroup label="Architecture & Design">
-                                        {% for branch in architecture_branches %}
-                                            <option value="{{ branch.code }}">{{ branch.name }}</option>
-                                        {% endfor %}
-                                    </optgroup>
+                                <span class="input-group-text bg-light"><i class="fas fa-graduation-cap text-primary"></i></span>
+                                <select class="form-select form-select-lg" id="course_type" name="course_type">
+                                    <option value="engineering">B.E/B.TECH</option>
                                 </select>
                             </div>
                         </div>
@@ -45,9 +35,7 @@
                                 <span class="input-group-text bg-light"><i class="fas fa-users text-primary"></i></span>
                                 <select class="form-select form-select-lg" id="category" name="category">
                                     <option value="GM">General Merit (GM)</option>
-                                    <option value="HK">Hyderabad-Karnataka (HK)</option>
-                                    <option value="SC">Scheduled Caste (SC)</option>
-                                    <option value="ST">Scheduled Tribe (ST)</option>
+                                    <option value="KKR">KKR (Hyderabad-Karnataka)</option>
                                 </select>
                             </div>
                         </div>

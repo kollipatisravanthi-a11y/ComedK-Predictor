@@ -8,8 +8,53 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from backend.colleges_data import colleges_list
-from backend.utils import load_comedk_data
-from backend.prediction import predict_colleges
+# from backend.utils import load_comedk_data
+# from backend.prediction import predict_colleges
+from sqlalchemy import create_engine, text
+
+# DB Configuration
+SERVER = 'LAPTOP-H91N3543\\SQLEXPRESS'
+DATABASE = 'COMEDK_DB'
+engine = create_engine(f'mssql+pyodbc://@{SERVER}/{DATABASE}?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes')
+
+def predict_colleges(rank, branch=None, category='GM'):
+    """
+    Predict colleges based on rank using the predictions_2026 table.
+    """
+    try:
+        with engine.connect() as conn:
+            # Construct query
+            # predicted_closing_rank is what we have. Filter by R3 for 'final' cutoff estimation.
+            query_str = "SELECT college_name, branch, predicted_closing_rank FROM predictions_2026 WHERE predicted_closing_rank >= :rank AND round = 'R3'"
+            params = {"rank": rank}
+            
+            if category:
+                query_str += " AND category = :category"
+                params["category"] = category
+                
+            if branch:
+                query_str += " AND branch = :branch"
+                params["branch"] = branch
+                
+            query_str += " ORDER BY predicted_closing_rank ASC"
+            
+            # Limit results
+            query_str += " OFFSET 0 ROWS FETCH NEXT 15 ROWS ONLY"
+            
+            result = conn.execute(text(query_str), params)
+            predictions = []
+            for row in result:
+                predictions.append({
+                    "college": row[0],
+                    "branch": row[1],
+                    "cutoff": row[2],
+                    "location": "Karnataka", # Placeholder as location is not in predictions table
+                    "probability": "High" # Placeholder
+                })
+            return predictions
+    except Exception as e:
+        print(f"Prediction Error: {e}")
+        return []
 
 class ChatBot:
     def __init__(self):
@@ -39,14 +84,73 @@ class ChatBot:
                     patterns.append(pattern)
                     tags.append(intent['tag'])
             
+            # --- Augment training data with College names and Ranks ---
+            # This ensures the model recognizes specific college names and rank queries
+            # even if they are not explicitly in intents.json
+            
+            for college in colleges_list:
+                # Extract main name (e.g. 'Acharya Institute of Technology' from 'Acharya Institute of Technology- Soladevanahalli...')
+                full_name = college.get('name', '')
+                main_name = full_name.split('-')[0].strip()
+                
+                # Add patterns for 'colleges' intent or specific query
+                # We associate them with 'colleges' or 'cutoff' based on context if we had it,
+                # but here we'll map them to a new 'college_specific' intent or just 'colleges'
+                # For now, let's map to 'colleges' to ensure it's recognized as a college query
+                
+                if main_name:
+                    patterns.append(main_name)
+                    tags.append('colleges')
+                    patterns.append(f"Tell me about {main_name}")
+                    tags.append('colleges')
+                    patterns.append(f"cutoff for {main_name}")
+                    tags.append('cutoff')
+                    patterns.append(f"courses in {main_name}")
+                    tags.append('colleges')
+                
+                # Add code
+                code = college.get('code', '')
+                if code:
+                    patterns.append(code)
+                    tags.append('colleges')
+
+            # Add Rank patterns covering a wide range to ensure numerical literacy in the vectorizer
+            # (Though regex catches explicit numbers, this helps 'my rank is...' type queries)
+            for r in [1, 100, 1000, 5000, 10000, 20000, 50000, 100000]:
+                patterns.append(f"Rank {r}")
+                tags.append('rank')
+                patterns.append(f"My rank is {r}")
+                tags.append('rank')
+                patterns.append(f"predict for {r}")
+                tags.append('rank')
+
+            # -----------------------------------------------------------
+
             # Create and train pipeline
             self.model = make_pipeline(TfidfVectorizer(), LogisticRegression())
             self.model.fit(patterns, tags)
             print("Chatbot model trained successfully.")
             
-            # Load college data using utils
-            self.colleges_df = load_comedk_data(base_dir)
-            
+            # Load college data
+            enriched_path = os.path.join(base_dir, '../data/processed/linear_model_results_enriched.csv')
+            if os.path.exists(enriched_path):
+                 self.colleges_df = pd.read_csv(enriched_path)
+                 print(f"Chatbot loaded enriched linear model results from {enriched_path}")
+            else:
+                 print("Chatbot: Enriched data not found. Please run result generation.")
+                 self.colleges_df = pd.DataFrame() # Empty to avoid using forbidden data
+
+            # Load Enriched Web Data (Placements, Hostels etc.)
+            enriched_json_path = os.path.join(base_dir, 'college_data_enriched.json')
+            self.enriched_web_data = {}
+            if os.path.exists(enriched_json_path):
+                try:
+                    with open(enriched_json_path, 'r', encoding='utf-8') as f:
+                        self.enriched_web_data = json.load(f)
+                    print(f"Chatbot loaded enriched web data for {len(self.enriched_web_data)} colleges.")
+                except Exception as e:
+                    print(f"Error loading enriched web data: {e}")
+
         except Exception as e:
             print(f"Error initializing chatbot: {e}")
             self.model = None
@@ -73,25 +177,59 @@ class ChatBot:
             
         if found_college:
             response = f"**{found_college['name']}**\n"
-            response += f"Location: {found_college['location']}\n\n"
+            response += f"Location: {found_college['location']}\n"
             
-            # Look up courses in the CSV
-            if not self.colleges_df.empty:
-                # Filter by college code or name
-                # The CSV has 'College_Code' and 'College_Name'
-                # colleges_list has 'code' and 'name'
+            # Check for specific info types in user message
+            info_type = None
+            if any(w in message for w in ["placement", "package", "salary", "recruiters"]):
+                info_type = "placement"
+            elif any(w in message for w in ["hostel", "accommodation", "dorm"]):
+                info_type = "hostel"
+            elif any(w in message for w in ["infrastructure", "campus", "facilities"]):
+                info_type = "infrastructure"
+            elif any(w in message for w in ["academic", "curriculum", "faculty"]):
+                info_type = "academics"
+            elif any(w in message for w in ["admission", "eligibility", "process"]):
+                info_type = "admissions"
                 
-                college_courses = self.colleges_df[self.colleges_df['College_Code'] == found_college['code']]
-                
-                if not college_courses.empty:
-                    response += "Available Courses (based on recent data):\n"
-                    courses = college_courses['Course_Name'].unique()
-                    for course in courses:
-                        response += f"- {course}\n"
+            # If enriched data exists and users asks for specific info
+            code = found_college['code']
+            if info_type and self.enriched_web_data and code in self.enriched_web_data:
+                details = self.enriched_web_data[code].get('links', {}).get(info_type)
+                if details:
+                    if details.get('url'):
+                        response += f"\nHere is the official {info_type} information: {details['url']}\n"
+                    if details.get('content') and len(details['content']) > 20:
+                        # Extract a snippet
+                        snippet = details['content'][:300].replace('\n', ' ') + "..."
+                        response += f"Snippet: {snippet}\n"
+                    else:
+                        response += f"\n(Further details available on the official website)\n"
                 else:
-                    response += "Course details are not available in my current database, but they likely offer standard engineering branches."
-            else:
-                response += "Course details are currently unavailable."
+                    response += f"\nSpecific {info_type} details are not currently indexed. Please visit: {found_college.get('website', 'official website')}\n"
+            
+            # Look up courses in the CSV if no specific info requested or just general
+            elif not info_type and not self.colleges_df.empty:
+                # Normalize columns for access
+                df = self.colleges_df.copy()
+                df.columns = [c.strip().lower().replace(' ', '_') for c in df.columns]
+                
+                # Check column existence
+                code_col = 'college_code' if 'college_code' in df.columns else None
+                course_col = 'course' if 'course' in df.columns else None
+                
+                if code_col and course_col:
+                    college_courses = df[df[code_col] == found_college['code']]
+                    
+                    if not college_courses.empty:
+                        response += "\nAvailable Courses:\n"
+                        courses = college_courses[course_col].unique()
+                        for course in courses:
+                            response += f"- {course}\n"
+            
+            # Helper text
+            if not info_type:
+                 response += "\nYou can also ask about **placements**, **hostels**, or **fees** for this college."
                 
             return response
             
@@ -152,7 +290,7 @@ class ChatBot:
                 if intent['tag'] == predicted_tag:
                     return random.choice(intent['responses'])
                     
-            return "I'm having trouble processing that."
+            return "I'm sorry, can you ask about colleges, cutoffs etc?"
             
         except Exception as e:
             print(f"Error generating response: {e}")
