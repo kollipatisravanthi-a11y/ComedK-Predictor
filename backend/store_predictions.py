@@ -12,11 +12,7 @@ app = Flask(
 )
 
 # -------------------- DB --------------------
-engine = create_engine(
-    "mssql+pyodbc://@localhost\\SQLEXPRESS/COMEDK_DB"
-    "?driver=ODBC+Driver+17+for+SQL+Server"
-    "&trusted_connection=yes"
-)
+from backend.database import engine
 
 # -------------------- ROUND ORDER --------------------
 ROUND_ORDER = ["R1", "R2", "R3", "R4"]  # ascending order
@@ -34,7 +30,7 @@ def generate_predictions():
         branch,
         category,
         closing_rank
-    FROM dbo.COMEDK_MASTER_2021_2025
+    FROM COMEDK_MASTER_2021_2025
     WHERE closing_rank IS NOT NULL
     """
     df = pd.read_sql(query, engine)

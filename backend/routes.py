@@ -15,12 +15,13 @@ from backend.colleges_data import architecture_colleges, colleges_list, dental_c
 # Removed unused imports
 # from backend.prediction import get_college_courses
 # from backend.prediction_2025 import predictor_2025
+from backend.database import engine
 
-engine = create_engine(
-    "mssql+pyodbc://@localhost\\SQLEXPRESS/COMEDK_DB"
-    "?driver=ODBC+Driver+17+for+SQL+Server"
-    "&trusted_connection=yes"
-)
+# engine = create_engine(
+#     "mssql+pyodbc://@localhost\\SQLEXPRESS/COMEDK_DB"
+#     "?driver=ODBC+Driver+17+for+SQL+Server"
+#     "&trusted_connection=yes"
+# )
 
 # Load enriched data if available
 ENRICHED_DATA_FILE = os.path.join(os.path.dirname(__file__), 'college_data_enriched.json')

@@ -2,6 +2,7 @@ import json
 import random
 import os
 import re
+import joblib
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -11,11 +12,25 @@ from backend.colleges_data import colleges_list
 # from backend.utils import load_comedk_data
 # from backend.prediction import predict_colleges
 from sqlalchemy import create_engine, text
+from backend.database import engine
 
-# DB Configuration
-SERVER = 'LAPTOP-H91N3543\\SQLEXPRESS'
-DATABASE = 'COMEDK_DB'
-engine = create_engine(f'mssql+pyodbc://@{SERVER}/{DATABASE}?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes')
+# DB Configuration - Removed hardcoded MSSQL details
+# DATABASE = 'COMEDK_DB'
+# engine = create_engine(f'mssql+pyodbc://@{SERVER}/{DATABASE}?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes')
+
+# Common abbreviations mapping
+COLLEGE_ABBREVIATIONS = {
+    'rvce': 'RV College of Engineering',
+    'msrit': 'M.S. Ramaiah Institute of Technology',
+    'bmsce': 'BMS College of Engineering',
+    'pesit': 'PES Institute of Technology',
+    'dsce': 'Dayananda Sagar College of Engineering',
+    'bit': 'Bangalore Institute of Technology',
+    'sit': 'Siddaganga Institute of Technology',
+    'nie': 'National Institute of Engineering',
+    'uvce': 'University Visvesvaraya College of Engineering',
+    'jss': 'JSS Science and Technology University'
+}
 
 def predict_colleges(rank, branch=None, category='GM'):
     """
@@ -61,42 +76,85 @@ class ChatBot:
         self.intents = []
         self.model = None
         self.colleges_df = None
+        self.enriched_web_data = {}
         self.model_name = "GPT-5.1-Codex-Max"
-        print(f"Enabled {self.model_name} for all clients")
-        self.load_data_and_train()
-
-    def load_data_and_train(self):
-        # Load intents
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        intents_path = os.path.join(base_dir, 'intents.json')
+        self.base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.model_path = os.path.join(self.base_dir, 'chatbot_model.pkl')
         
+        print(f"Enabled {self.model_name} for all clients")
+        self.load_resources()
+        
+        # Try to load existing model, otherwise train
+        if os.path.exists(self.model_path):
+            try:
+                self.model = joblib.load(self.model_path)
+                print("Loaded saved chatbot model.")
+            except Exception as e:
+                print(f"Failed to load model ({e}), retraining...")
+                self.train_model()
+        else:
+            self.train_model()
+
+    def load_resources(self):
+        # Load intents
+        intents_path = os.path.join(self.base_dir, 'intents.json')
         try:
             with open(intents_path, 'r') as f:
                 data = json.load(f)
-                
             self.intents = data['intents']
-            
-            patterns = []
-            tags = []
-            
+        except Exception as e:
+            print(f"Error loading intents: {e}")
+
+        # Load college data
+        enriched_path = os.path.join(self.base_dir, '../data/processed/linear_model_results_enriched.csv')
+        if os.path.exists(enriched_path):
+             try:
+                 self.colleges_df = pd.read_csv(enriched_path)
+                 print(f"Chatbot loaded enriched linear model results from {enriched_path}")
+             except Exception as e:
+                 print(f"Error loading csv: {e}")
+                 self.colleges_df = pd.DataFrame()
+        else:
+             print("Chatbot: Enriched data not found. Please run result generation.")
+             self.colleges_df = pd.DataFrame() 
+             
+        # Load Enriched Web Data (Placements, Hostels etc.)
+        enriched_json_path = os.path.join(self.base_dir, 'college_data_enriched.json')
+        if os.path.exists(enriched_json_path):
+            try:
+                with open(enriched_json_path, 'r', encoding='utf-8') as f:
+                    self.enriched_web_data = json.load(f)
+                print(f"Chatbot loaded enriched web data for {len(self.enriched_web_data)} colleges.")
+            except Exception as e:
+                print(f"Error loading enriched web data: {e}")
+
+    def train_model(self):
+        print("Training chatbot model...")
+        patterns = []
+        tags = []
+        
+        try:
             for intent in self.intents:
                 for pattern in intent['patterns']:
                     patterns.append(pattern)
                     tags.append(intent['tag'])
             
             # --- Augment training data with College names and Ranks ---
-            # This ensures the model recognizes specific college names and rank queries
-            # even if they are not explicitly in intents.json
             
+            # Add abbreviations to training data
+            for abbr, full_name in COLLEGE_ABBREVIATIONS.items():
+                patterns.append(abbr)
+                tags.append('colleges')
+                patterns.append(f"cutoff for {abbr}")
+                tags.append('cutoff')
+                # Removed "courses in {abbr}" to avoid biasing generic "courses" query towards 'colleges' intent.
+                # Specific queries like "courses in rvce" are handled by get_college_info logic anyway.
+                patterns.append(f"Tell me about {abbr}")
+                tags.append('colleges')
+
             for college in colleges_list:
-                # Extract main name (e.g. 'Acharya Institute of Technology' from 'Acharya Institute of Technology- Soladevanahalli...')
                 full_name = college.get('name', '')
                 main_name = full_name.split('-')[0].strip()
-                
-                # Add patterns for 'colleges' intent or specific query
-                # We associate them with 'colleges' or 'cutoff' based on context if we had it,
-                # but here we'll map them to a new 'college_specific' intent or just 'colleges'
-                # For now, let's map to 'colleges' to ensure it's recognized as a college query
                 
                 if main_name:
                     patterns.append(main_name)
@@ -105,17 +163,14 @@ class ChatBot:
                     tags.append('colleges')
                     patterns.append(f"cutoff for {main_name}")
                     tags.append('cutoff')
-                    patterns.append(f"courses in {main_name}")
-                    tags.append('colleges')
+                    # Removed "courses in {main_name}" to avoid biasing generic "courses" query towards 'colleges' intent.
                 
-                # Add code
                 code = college.get('code', '')
                 if code:
                     patterns.append(code)
                     tags.append('colleges')
 
-            # Add Rank patterns covering a wide range to ensure numerical literacy in the vectorizer
-            # (Though regex catches explicit numbers, this helps 'my rank is...' type queries)
+            # Add Rank patterns
             for r in [1, 100, 1000, 5000, 10000, 20000, 50000, 100000]:
                 patterns.append(f"Rank {r}")
                 tags.append('rank')
@@ -124,40 +179,29 @@ class ChatBot:
                 patterns.append(f"predict for {r}")
                 tags.append('rank')
 
-            # -----------------------------------------------------------
-
             # Create and train pipeline
-            self.model = make_pipeline(TfidfVectorizer(), LogisticRegression())
+            self.model = make_pipeline(TfidfVectorizer(), LogisticRegression(max_iter=1000))
             self.model.fit(patterns, tags)
-            print("Chatbot model trained successfully.")
             
-            # Load college data
-            enriched_path = os.path.join(base_dir, '../data/processed/linear_model_results_enriched.csv')
-            if os.path.exists(enriched_path):
-                 self.colleges_df = pd.read_csv(enriched_path)
-                 print(f"Chatbot loaded enriched linear model results from {enriched_path}")
-            else:
-                 print("Chatbot: Enriched data not found. Please run result generation.")
-                 self.colleges_df = pd.DataFrame() # Empty to avoid using forbidden data
-
-            # Load Enriched Web Data (Placements, Hostels etc.)
-            enriched_json_path = os.path.join(base_dir, 'college_data_enriched.json')
-            self.enriched_web_data = {}
-            if os.path.exists(enriched_json_path):
-                try:
-                    with open(enriched_json_path, 'r', encoding='utf-8') as f:
-                        self.enriched_web_data = json.load(f)
-                    print(f"Chatbot loaded enriched web data for {len(self.enriched_web_data)} colleges.")
-                except Exception as e:
-                    print(f"Error loading enriched web data: {e}")
+            # Save model
+            joblib.dump(self.model, self.model_path)
+            print(f"Chatbot model trained successfully and saved to {self.model_path}")
 
         except Exception as e:
-            print(f"Error initializing chatbot: {e}")
+            print(f"Error training chatbot: {e}")
             self.model = None
 
     def get_college_info(self, message):
         message = message.lower()
         found_college = None
+        
+        # Check for abbreviations
+        for abbr, full_name in COLLEGE_ABBREVIATIONS.items():
+            # Check for abbr as a distinct word
+            if re.search(r'\b' + re.escape(abbr) + r'\b', message):
+                # Replace abbr with part of full name to help matching below
+                # or just use full_name for matching logic
+                message = message.replace(abbr, full_name.lower())
         
         # Check against the comprehensive list from colleges_data.py
         for college in colleges_list:
@@ -297,3 +341,7 @@ class ChatBot:
             return "Sorry, I encountered an error."
 
 chatbot = ChatBot()
+
+if __name__ == '__main__':
+    bot = ChatBot()
+    bot.train_model()

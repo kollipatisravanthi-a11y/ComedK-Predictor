@@ -40,6 +40,26 @@ COMEDK_DTL/
 └── run.py                   # Application Entry Point
 ```
 
+## ☁️ Deployment
+
+### Option 1: Deploy on Render (Recommended)
+
+This project is configured for **Render**, which supports Python/Flask applications natively.
+
+1.  **Push your changes to GitHub**.
+2.  Click the button below to deploy automatically:
+
+    [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/kollipatisravanthi-a11y/ComedK-Predictor)
+
+    *Note: If the above button doesn't work, go to [Render Dashboard](https://dashboard.render.com/), create a new **Web Service**, connect your GitHub repo, and it will automatically detect the configuration from `render.yaml`.*
+
+### Option 2: Manual Deployment
+
+If you are using another provider, ensure your build command runs the database setup:
+
+*   **Build Command**: `pip install -r requirements.txt && python setup_db.py`
+*   **Start Command**: `gunicorn run:app`
+
 ## ⚙️ Installation & Setup
 
 1.  **Clone the Repository**:
@@ -47,6 +67,23 @@ COMEDK_DTL/
     git clone https://github.com/kollipatisravanthi-a11y/ComedK-Predictor.git
     cd COMEDK_DTL
     ```
+
+2.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Initialize Database**:
+    This step creates the `comedk.db` file from the CSV data.
+    ```bash
+    python setup_db.py
+    ```
+
+4.  **Run the Application**:
+    ```bash
+    python run.py
+    ```
+    Access the app at `http://127.0.0.1:5000`
 
 2.  **Create a Virtual Environment (Optional but Recommended)**:
     ```bash

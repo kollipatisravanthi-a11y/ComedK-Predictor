@@ -19,6 +19,22 @@
       ]
     },
     {
+      "tag": "colleges",
+      "patterns": [
+        "colleges",
+        "college list",
+        "list of colleges",
+        "show me colleges",
+        "top colleges",
+        "best colleges",
+        "all colleges"
+      ],
+      "responses": [
+        "You can explore the list of all participating colleges in the **Colleges** section.",
+        "We have data on many top colleges including RVCE, BMSCE, and MSRIT. Check the **Colleges** tab for more details."
+      ]
+    },
+    {
       "tag": "farewell",
       "patterns": [
         "Bye",
@@ -37,16 +53,22 @@
     {
       "tag": "courses_info",
       "patterns": [
+        "courses",
+        "course",
+        "all courses",
+        "list of courses",
         "What courses are available?",
         "List all branches",
         "engineering branches",
         "Which courses can I take?",
         "show me courses",
         "tell me some courses",
-        "branches list"
+        "branches list",
+        "engineering courses",
+        "available courses"
       ],
       "responses": [
-        "Some popular courses include Computer Science, Electronics & Communication, Artificial Intelligence, Mechanical, and Civil Engineering. You can explore all 30+ available courses in the **Courses** tab."
+        "Popular branches include CS, ECE, CI, AI, and others. You can view all available branches in the **Courses** section."
       ]
     },
     {
