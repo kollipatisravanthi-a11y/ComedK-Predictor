@@ -192,6 +192,7 @@ def predictor():
             error = "Please enter a valid numeric rank."
 
         category = request.form.get('category')
+        course_type = request.form.get('course_type', 'engineering')
 
         if rank is not None and category:
             inspector = inspect(engine)
@@ -240,8 +241,12 @@ def predictor():
                 # Filter by branch_code if column exists, otherwise weak filter by name?
                 # The DB has 'branch_code', so use it if available in DF.
                 if 'branch_code' in df.columns:
-                     # Remove architecture codes
-                     df = df[~df['branch_code'].isin(arch_codes)]
+                     if course_type == 'engineering':
+                        # Remove architecture codes
+                        df = df[~df['branch_code'].isin(arch_codes)]
+                     elif course_type == 'architecture':
+                        # Keep ONLY architecture codes
+                        df = df[df['branch_code'].isin(arch_codes)]
                 
                 # Extract numeric round for sorting
                 # Note: 'round' might be 'R1', 'R2', or just '1', '2'
