@@ -1,1 +1,28 @@
 year,round,college_code,college_name,branch,category,closing_rank
+2022,R1,E186,Nitte School of Architecture Planning and Design,GM,505.0,775
+2022,R3,E029,"BMS School of Architecture, Bengaluru",GM,806,3
+2022,R3,E077,"M.S Ramaiah Institute of Technology, Bangalore",GM,828,3
+2022,R3,E163,SJB School of Architecture & Planning,GM,706,3
+2022,R3,E164,REVA University,GM,263,3
+2022,R3,E176,R V College of Architecture,GM,463,3
+2022,R3,E178,WADIYAR CENTRE FOR ARCHITECTURE,GM,813,3
+2022,R3,E189,BMS College of Architecture,GM,378,3
+2022,R3,E193,Dayananda Sagar College of Architecture,GM,842,3
+2023,R1,E189,BMS College of Architecture,AT-Architecture,125,605
+2023,R2,E029,BMS School of Architecture,AT-Architecture,664.0,2
+2023,R2,E077,M S Ramaiah Institute of Technology,AT-Architecture,512.0,2
+2023,R2,E163,SJB School of Architecture & Planning,AT-Architecture,462.0,2
+2023,R2,E164,Reva University,AT-Architecture,577.0,2
+2023,R2,E168,Mysore School of Architecture,AT-Architecture,660.0,2
+2023,R2,E176,R V College of Architecture,AT-Architecture,396.0,2
+2023,R2,E178,Wadiyar Centre For Architecture,AT-Architecture,418.0,2
+2023,R2,E189,BMS College of Architecture,AT-Architecture,243.0,2
+2023,R2,E193,Dayananda Sagar College of Architecture,AT-Architecture,671.0,2
+2023,R3,College Code,College Name,Course Name,Cut off Rank,3
+2023,R3,E029,BMS School of Architecture,AT-Architecture,473,3
+2023,R3,E077,M.S Ramaiah Institute of Technology,AT-Architecture,653,3
+2023,R3,E163,SJB School of Architecture & Planning,AT-Architecture,462,3
+2023,R3,E176,R V College of Architecture,AT-Architecture,542,3
+2023,R3,E178,Wadiyar Centre For Architecture,AT-Architecture,447,3
+2023,R3,E189,BMS College of Architecture,AT-Architecture,302,3
+2023,R3,E193,Dayananda Sagar College of Architecture,AT-Architecture,600,3

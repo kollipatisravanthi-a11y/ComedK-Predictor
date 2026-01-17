@@ -1,135 +1,178 @@
 import pandas as pd
 import os
 from glob import glob
+import re
 
 # ----------------------------
 # 1️⃣ SET FOLDER PATH
 # ----------------------------
-folder = r"C:\Projects\COMEDK_DTL\data\raw"  # folder with all CSV/Excel files
+folder = r"C:\Projects\COMEDK_DTL\data\raw"
+output_file_name = "COMEDK_BARCH_ALL_ROUNDS.csv"
 
 # ----------------------------
 # 2️⃣ GET ALL FILES
 # ----------------------------
-# Look for both CSV and Excel files
-files = glob(os.path.join(folder, "*.csv")) + glob(os.path.join(folder, "*.xlsx"))
+# Find all CSV files in the folder
+all_files = glob(os.path.join(folder, "*.csv"))
 
-# Exclude the script itself and the output file from the list
-output_file_name = "COMEDK_BARCH_ALL_ROUNDS.csv"
-files = [f for f in files if "EXCELTOCSV.py" not in f and output_file_name not in f]
+# Filter out the script itself, the output file if it exists, and the temp file
+files = [f for f in all_files 
+         if "EXCELTOCSV.py" not in f 
+         and output_file_name not in f
+         and "COMEDK_2025_BARCH_R3.csv" not in f # duplicate/temp
+        ]
 
-print(f"Found {len(files)} files:", files)
+print(f"Found {len(files)} B.Arch files to process.")
 
 if not files:
-    print("❌ No files found! Please check the folder path and file extensions.")
+    print("❌ No files found! Check folder path.")
     exit()
 
 # ----------------------------
-# 3️⃣ READ & APPEND FILES
+# 3️⃣ HELPER FUNCTIONS
+# ----------------------------
+
+def extract_meta_from_filename(filename):
+    # Extracts year and round from filenames like:
+    # BARCH_2022_R1.csv, BARCH_2024_R2_2.csv, COMEDK_2022_BARCH_R1.csv
+    base = os.path.basename(filename).upper()
+    
+    # Defaults
+    year = 2024
+    round_val = "R1"
+    
+    # 1. Extract Year (YYYY)
+    y_match = re.search(r"202[0-9]", base)
+    if y_match:
+        year = int(y_match.group(0))
+        
+    # 2. Extract Round
+    # Logic: Look for R1, R2, R3. If R2_1 or R2_2, map to R2 (or keep specific if needed)
+    # The master data uses R1, R2, R3. 
+    # We should normalize specific sub-rounds to main rounds for prediction logic, 
+    # or keep them if detailed tracking is needed. 
+    # Let's map to main rounds R1, R2, R3 for simplicity to match master.
+    
+    if "R1" in base: round_val = "R1"
+    elif "R2" in base: round_val = "R2"
+    elif "R3" in base: round_val = "R3"
+    
+    return year, round_val
+
+# ----------------------------
+# 4️⃣ PROCESS FILES
 # ----------------------------
 all_data = []
 
 for file in files:
-    print(f"Reading {os.path.basename(file)}...")
     try:
-        if file.endswith(".xlsx"):
-            # Try reading with header first
-            df = pd.read_excel(file)
-            
-            # If columns look like default index or known specific structure without headers
-            # Adjust logic here if you have specific typeless excel files
-            # For now, simplistic check: if 'closing_rank' is not in columns, maybe it has no header
-            if 'closing_rank' not in df.columns and 'branch' not in df.columns:
-                 df = pd.read_excel(file, header=None)
-                 # Map columns if we know the structure (Assuming 6 cols based on previous code)
-                 if len(df.columns) >= 6:
-                    df = df.iloc[:, :6]
-                    df.columns = ["college_code", "college_name", "branch", "closing_rank", "category", "remarks"]
-            
-        else:
-            df = pd.read_csv(file)
+        # Read CSV
+        # Some might have no headers or different encodings, handle simply for now
+        df = pd.read_csv(file)
         
-        # NORMALIZE COLUMN NAMES
-        # We want 'branch' as the standard column name for the course
-        if "course_name" in df.columns:
-            df.rename(columns={"course_name": "branch"}, inplace=True)
-            
-        # Clean closing_rank
-        if "closing_rank" in df.columns:
-            df["closing_rank"] = pd.to_numeric(df["closing_rank"], errors="coerce")
-            df = df.dropna(subset=["closing_rank"])
-            df["closing_rank"] = df["closing_rank"].astype(int)
+        # Determine Year/Round from filename
+        year, round_val = extract_meta_from_filename(file)
         
-        # Add 'round' info if missing
-        if "round" not in df.columns:
-            round_name = os.path.basename(file).split(".")[0]
-            df["round"] = round_name
+        # NORMALIZE COLUMNS
+        # Goal: year, round, college_code, college_name, branch, category, closing_rank
+        
+        # Common variations in column names?
+        # Let's clean up column names: strip spaces, lower case for matching
+        df.columns = df.columns.astype(str).str.strip().str.lower().str.replace(' ', '_').str.replace('.', '')
 
-        all_data.append(df)
+        # Standardize 'Round No' or similar if present inside file to overwrite filename Metadata?
+        # Usually checking filename is safer if file content is messy.
         
+        df['year'] = year
+        df['round'] = round_val
+        
+        # Map found columns to standard names
+        # We need: college_code, college_name, branch, category, closing_rank
+        # Mappings based on likely headers:
+        
+        # college_code
+        if 'code' in df.columns: df.rename(columns={'code': 'college_code'}, inplace=True)
+        elif 'college_code' not in df.columns and len(df.columns) > 0:
+             # Blind guess? No, let's look for known patterns if needed.
+             pass
+
+        # college_name
+        if 'college' in df.columns: df.rename(columns={'college': 'college_name'}, inplace=True)
+        if 'institute_name' in df.columns: df.rename(columns={'institute_name': 'college_name'}, inplace=True)
+
+        # branch
+        if 'course' in df.columns: df.rename(columns={'course': 'branch'}, inplace=True)
+        if 'course_name' in df.columns: df.rename(columns={'course_name': 'branch'}, inplace=True)
+        
+        # category
+        if 'cat' in df.columns: df.rename(columns={'cat': 'category'}, inplace=True)
+        
+        # closing_rank
+        if 'rank' in df.columns: df.rename(columns={'rank': 'closing_rank'}, inplace=True)
+        if 'cutoff' in df.columns: df.rename(columns={'cutoff': 'closing_rank'}, inplace=True)
+        if 'cr' in df.columns: df.rename(columns={'cr': 'closing_rank'}, inplace=True) # sometimes used
+        
+        # Check if mandatory columns exist
+        required = ['college_code', 'branch', 'closing_rank']
+        missing = [c for c in required if c not in df.columns]
+        
+        if missing:
+            # Fallback: Assume positional if simple CSV (Code, Name, Branch, Category, Rank)
+            # Typically: Code, Name, Branch, Category, Rank (5 cols)
+            if len(df.columns) >= 5:
+                # We assume column order: Code, Name, Branch, Category, Rank/CR
+                print(f"⚠️ {os.path.basename(file)} missing headers {missing}. Using positional mapping.")
+                # Create a copy to avoid SettingWithCopy warnings if relevant
+                temp_df = df.iloc[:, :5].copy()
+                temp_df.columns = ['college_code', 'college_name', 'branch', 'category', 'closing_rank']
+                # Restore meta
+                temp_df['year'] = year
+                temp_df['round'] = round_val
+                df = temp_df
+            else:
+                print(f"❌ Skipping {os.path.basename(file)}: Missing required columns {missing} and structure unclear.")
+                continue
+
+        # Clean Closing Rank
+        df['closing_rank'] = pd.to_numeric(df['closing_rank'], errors='coerce')
+        df = df.dropna(subset=['closing_rank'])
+        df['closing_rank'] = df['closing_rank'].astype(int)
+        
+        # Ensure 'branch' has values
+        df['branch'] = df['branch'].fillna("Architecture") # Default if missing
+        
+        # Ensure category exists
+        if 'category' not in df.columns:
+            df['category'] = 'GM' # Default
+            
+        # Select final columns
+        final_cols = ['year', 'round', 'college_code', 'college_name', 'branch', 'category', 'closing_rank']
+        
+        # Fill missing with None/Empty before selection
+        for c in final_cols:
+            if c not in df.columns:
+                df[c] = None
+                
+        all_data.append(df[final_cols])
+        print(f"   Processed {os.path.basename(file)} ({len(df)} rows)")
+
     except Exception as e:
-        print(f"⚠️ Error processing {file}: {e}")
+        print(f"❌ Error reading {file}: {e}")
 
 # ----------------------------
-# 4️⃣ CONCATENATE ALL DATA
+# 5️⃣ MERGE & SAVE
 # ----------------------------
-if not all_data:
-    print("❌ No valid data collected from files.")
-    exit()
-
-merged_df = pd.concat(all_data, ignore_index=True)
-
-# ----------------------------
-# 5️⃣ FINAL CLEAN & SAVE
-# ----------------------------
-
-# Extract Year and Round from the 'round' column (which contains filename)
-# Expected formats like: COMEDK_2022_BARCH_R1, COMEDK_2024_BARCH_R2_1
-def extract_meta(val):
-    val = str(val).upper()
-    year = 2024 # Default fallback
-    round_val = "R1"
+if all_data:
+    merged_df = pd.concat(all_data, ignore_index=True)
     
-    # Extract Year
-    import re
-    y_match = re.search(r"202[0-9]", val)
-    if y_match:
-        year = int(y_match.group(0))
-        
-    # Extract Round
-    if "R1" in val: round_val = "R1"
-    elif "R2" in val: round_val = "R2"
-    elif "R3" in val: round_val = "R3"
+    output_path = os.path.join(folder, output_file_name)
+    merged_df.to_csv(output_path, index=False)
     
-    return year, round_val
+    print(f"\n✅ SUCCESS! Merged {len(merged_df)} records into:")
+    print(f"   {output_path}")
+else:
+    print("\n❌ No data merged.")
 
-if not merged_df.empty:
-    merged_df[["year", "clean_round"]] = merged_df["round"].apply(lambda x: pd.Series(extract_meta(x)))
-    merged_df["round"] = merged_df["clean_round"]
-    merged_df.drop(columns=["clean_round"], inplace=True)
-
-# Ensure category exists, default to 'GM' if missing
-if "category" not in merged_df.columns:
-    merged_df["category"] = "GM"
-
-# Keep standard columns to match master CSV
-cols_to_keep = ["year", "round", "college_code", "college_name", "branch", "category", "closing_rank"]
-available_cols = [c for c in cols_to_keep if c in merged_df.columns]
-
-final_df = merged_df[available_cols]
-
-# Add missing columns if any
-for col in cols_to_keep:
-    if col not in final_df.columns:
-        final_df[col] = None
-
-final_df = final_df[cols_to_keep] # Enforce order
-
-output_path = os.path.join(folder, output_file_name)
-final_df.to_csv(output_path, index=False)
-
-
-print(f"✅ Merged file created: {output_path}")
-print(f"   Total records: {len(final_df)}")
 
 
 
