@@ -1,50 +1,79 @@
-# COMEDK College Predictor
+# COMEDK College Predictor & Chatbot Assistant 🎓
 
-A web application to predict eligible engineering colleges based on COMEDK rank and branch preferences.
+A comprehensive web application designed to help students navigate the COMEDK UGET counseling process. It features a Machine Learning-based college predictor, an AI chatbot for instant result, and detailed information about colleges and courses.
 
-## Project Structure
+## 🚀 Key Features
 
-- **backend/**: Flask application logic (`app.py`, `routes.py`, `prediction.py`).
-- **frontend/**: HTML templates and static assets (CSS, JS).
-- **data/**: Raw and processed datasets.
-- **analysis/**: Scripts for data preprocessing and visualization.
-- **docs/**: Documentation and diagrams.
+*   **🏆 Advanced College Predictor**: Uses historical data (2021-2025) and Trend Analysis to predict eligible engineering colleges and branches based on your 2026 rank.
+*   **🤖 AI Chatbot Assistant**: A Natural Language Processing (NLP) powered assistant capable of answering queries about Syllabus, Cutoffs (General/HK), Exam Patterns, and College info.
+*   **📚 Course Explorer**: Detailed insights into available Engineering, Medical, and Architecture courses.
+*   **🏛️ College Directory**: Searchable list of Top Engineering colleges in Karnataka with location and code details.
+*   **📈 Historical Data Analysis**: Built on verified cutoff data from the last 5 years.
 
-## Setup Instructions
+## 🛠️ Tech Stack
 
-1.  **Install Dependencies**:
-    `ash
+*   **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5 (Responsive Design)
+*   **Backend**: Python, Flask
+*   **Machine Learning / AI**: 
+    *   `scikit-learn` for Rank Prediction (Linear Regression & Trend Analysis).
+    *   NLP (Bag of Words) for the Chatbot.
+*   **Data Processing**: Pandas, NumPy.
+*   **Database**: JSON/CSV file storage for rapid access.
+
+## 📂 Project Structure
+
+```
+COMEDK_DTL/
+├── backend/
+│   ├── app.py                # Main Flask Application Factory
+│   ├── routes.py            # URL Routing & Controller Logic
+│   ├── store_predictions.py # Prediction Engine (Generates 2026 forecasts)
+│   ├── chatbot_ai.py        # NLP Chatbot Implementation
+│   ├── intents.json         # Chatbot Training Data
+│   └── colleges_data.py     # Data Access Layer
+├── data/
+│   └── processed/           # Cleaned datasets
+├── frontend/
+│   ├── static/              # CSS, Images, JS
+│   └── templates/           # HTML Templates (Jinja2)
+├── COMEDK_MASTER_2021_2025.csv  # Primary Historical Dataset
+└── run.py                   # Application Entry Point
+```
+
+## ⚙️ Installation & Setup
+
+1.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/kollipatisravanthi-a11y/ComedK-Predictor.git
+    cd COMEDK_DTL
+    ```
+
+2.  **Create a Virtual Environment (Optional but Recommended)**:
+    ```bash
+    python -m venv venv
+    # Windows
+    .\venv\Scripts\activate
+    # Linux/Mac
+    source venv/bin/activate
+    ```
+
+3.  **Install Dependencies**:
+    ```bash
     pip install -r requirements.txt
-    ` 
+    ```
 
-2.  **Run the Application**:
-    Navigate to the `backend` directory and run:
-    `ash
-    python app.py
-    ` 
-    The app will be available at `http://127.0.0.1:5000/`.
+4.  **Run the Application**:
+    ```bash
+    python run.py
+    ```
+    The application will start at `http://127.0.0.1:5000/`
 
-## Features
+## 👥 Meet the Team
 
-- **Advanced College Predictor**: 
-    - Input your COMEDK rank.
-    - Select **multiple preferred branches** simultaneously.
-    - View eligible colleges with cutoff ranks and locations.
-- **Comprehensive College List**: 
-    - View separate lists for **Engineering** and **Architecture** colleges.
-    - **Search functionality** to filter colleges by code, name, or location.
-- **Courses & Branches Information**: 
-    - Explore General Courses (MBBS, BDS, etc.).
-    - View detailed lists of **Engineering** and **Architecture** branches.
-    - **Search functionality** to find specific courses or codes.
-- **User-Friendly Interface**: 
-    - Modern, responsive design using Bootstrap 5.
-    - Tabbed views for easy navigation between categories.
-    - `Counselling Guidance` and `Exam Details` sections.
+*   **Kollipati Lakshmi Sravanthi** - Project Lead
+*   **K Manoj Kumar** - Backend Developer
+*   **Nanda Kumar HR** - Frontend Developer
+*   **NR Mahesh Raju** - Database Admin
 
-## Development Steps
-
-1.  **Data Collection**: Place raw CSV data in `data/raw/`.
-2.  **Preprocessing**: Run `analysis/preprocessing.py` to clean data.
-3.  **Backend**: Update `prediction.py` with actual logic.
-4.  **Frontend**: Enhance UI in `frontend/templates/`.
+---
+*© 2025-2026 COMEDK Predictor. All Rights Reserved.*
