@@ -7,3 +7,7 @@ gunicorn
 pytest
 openpyxl
 SQLAlchemy
+requests
+beautifulsoup4
+googlesearch-python
+joblib
