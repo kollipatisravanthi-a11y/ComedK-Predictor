@@ -42,23 +42,23 @@ COMEDK_DTL/
 
 ## ☁️ Deployment
 
-### Option 1: Deploy on Render (Recommended)
+### Use Railway or Heroku (Alternatives)
 
-This project is configured for **Render**, which supports Python/Flask applications natively.
+This project is now configured with a standard `Procfile`, which makes it compatible with most Platform-as-a-Service (PaaS) providers like **Railway**, **Heroku**, or **Fly.io**.
 
-1.  **Push your changes to GitHub**.
-2.  Click the button below to deploy automatically:
+#### Deploy on Railway (Recommended)
 
-    [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/kollipatisravanthi-a11y/ComedK-Predictor)
+1.  Sign up at [railway.app](https://railway.app/).
+2.  Click "New Project" -> "Deploy from GitHub repo".
+3.  Select your repository `ComedK-Predictor`.
+4.  Railway will automatically detect the `Procfile` and deploy your app.
+    *   *Note: Accessing the `comedk.db` works because the Procfile command rebuilds it every time the server starts (`python setup_db.py`).*
 
-    *Note: If the above button doesn't work, go to [Render Dashboard](https://dashboard.render.com/), create a new **Web Service**, connect your GitHub repo, and it will automatically detect the configuration from `render.yaml`.*
+#### Deploy on Heroku
 
-### Option 2: Manual Deployment
-
-If you are using another provider, ensure your build command runs the database setup:
-
-*   **Build Command**: `pip install -r requirements.txt && python setup_db.py`
-*   **Start Command**: `gunicorn run:app`
+1.  Install the Heroku CLI and login (`heroku login`).
+2.  Create a new app: `heroku create`.
+3.  Deploy: `git push heroku main`.
 
 ## ⚙️ Installation & Setup
 
