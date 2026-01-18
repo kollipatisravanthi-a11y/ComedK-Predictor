@@ -76,6 +76,10 @@ def generate_predictions():
         # Try to find code in the branch string
         raw_branch = str(row["branch"]).strip().replace('\r', '').replace('\n', '')
         
+        # Explicit B.Arch check
+        if raw_branch.upper() == "B.ARCH":
+             return "AT", "Bachelor of Architecture (B.Arch)"
+        
         # Check specific codes from our known list first to avoid false positives
         # But CSV has explicit format "XX-Name" often
         import re
@@ -158,6 +162,7 @@ def generate_predictions():
     
     # NORMALIZE CATEGORY: GM/KKR -> GM
     df["category"] = df["category"].replace("GM/KKR", "GM")
+    df["category"] = df["category"].replace("HKR", "KKR")  # Normalize HKR to KKR for consistency
     df["category_clean"] = df["category"].str.strip().str.upper()
 
     # ---- EXCLUSIONS ----

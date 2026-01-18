@@ -7,7 +7,7 @@ def setup_database():
     print("🚀 Starting Database Setup...")
     
     # 1. Load Master Data CSV
-    master_csv = 'COMEDK_MASTER_2021_2025.csv'
+    master_csv = r'data\processed\COMEDK_MASTER_2021_2025.csv'
     if not os.path.exists(master_csv):
         print(f"❌ Error: {master_csv} not found in current directory.")
         return
@@ -18,12 +18,21 @@ def setup_database():
         print(f"   Loaded {len(df_master)} rows from master file.")
 
         # 1.1 Load B.Arch Data (if exists)
-        barch_csv = 'data/raw/COMEDK_BARCH_ALL_ROUNDS.csv'
+        barch_csv = r'data\processed\COMEDK_MASTER_BARCH.csv'
         if os.path.exists(barch_csv):
             print(f"📂 Reading {barch_csv}...")
             try:
                 df_barch = pd.read_csv(barch_csv)
                 if not df_barch.empty:
+                    # Rename columns to match master if needed
+                    # BArch: year,round_no,college_code,college_name,branch,category,closing_rank
+                    if 'round_no' in df_barch.columns:
+                        df_barch.rename(columns={'round_no': 'round'}, inplace=True)
+                    
+                    # Convert round 1 -> R1
+                    # Ensure round column is string type first
+                    df_barch['round'] = 'R' + df_barch['round'].astype(str).str.replace('R', '', regex=False)
+
                     # Normalize columns to match master
                     # Master: year,round,round_order,college_code,college_name,branch,category,closing_rank
                     

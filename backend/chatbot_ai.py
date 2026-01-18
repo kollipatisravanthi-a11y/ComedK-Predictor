@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
-from backend.colleges_data import colleges_list
+from backend.colleges_data import colleges_list, architecture_colleges, medical_colleges, dental_colleges
 # from backend.utils import load_comedk_data
 # from backend.prediction import predict_colleges
 from sqlalchemy import create_engine, text
@@ -32,15 +32,18 @@ COLLEGE_ABBREVIATIONS = {
     'jss': 'JSS Science and Technology University'
 }
 
-def predict_colleges(rank, branch=None, category='GM'):
+def predict_colleges(rank, branch=None, category='GM', course_type=None):
     """
     Predict colleges based on rank using the predictions_2026 table.
     """
     try:
         with engine.connect() as conn:
             # Construct query
-            # predicted_closing_rank is what we have. Filter by R3 for 'final' cutoff estimation.
-            query_str = "SELECT college_name, branch, predicted_closing_rank FROM predictions_2026 WHERE predicted_closing_rank >= :rank AND round = 'R3'"
+            query_str = """
+            SELECT college_name, branch, predicted_closing_rank, round 
+            FROM predictions_2026 
+            WHERE predicted_closing_rank >= :rank 
+            """
             params = {"rank": rank}
             
             if category:
@@ -50,21 +53,33 @@ def predict_colleges(rank, branch=None, category='GM'):
             if branch:
                 query_str += " AND branch = :branch"
                 params["branch"] = branch
-                
+
+            # Course Type Filtering
+            if course_type:
+                if course_type == 'architecture':
+                    # Include Arch, Design, Planning
+                    query_str += " AND (branch LIKE '%Arch%' OR branch LIKE '%Design%' OR branch LIKE '%Plan%')"
+                elif course_type == 'engineering':
+                    # Exclude Arch, Design, Planning
+                    query_str += " AND branch NOT LIKE '%Arch%' AND branch NOT LIKE '%Design%' AND branch NOT LIKE '%Plan%'"
+            
+            # Order by Cutoff ASC (Better colleges first)
             query_str += " ORDER BY predicted_closing_rank ASC"
             
-            # Limit results
-            query_str += " OFFSET 0 ROWS FETCH NEXT 15 ROWS ONLY"
+            # Limit results - increased to allow grouping
+            query_str += " LIMIT 100" if 'sqlite' in str(engine.url) else " OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY"
             
             result = conn.execute(text(query_str), params)
             predictions = []
+            
             for row in result:
                 predictions.append({
                     "college": row[0],
                     "branch": row[1],
                     "cutoff": row[2],
-                    "location": "Karnataka", # Placeholder as location is not in predictions table
-                    "probability": "High" # Placeholder
+                    "round": row[3],
+                    "location": "Karnataka", 
+                    "probability": "High"
                 })
             return predictions
     except Exception as e:
@@ -287,9 +302,28 @@ class ChatBot:
             return "Please say something."
             
         try:
+            msg_lower = message.lower()
+            
+            # --- General Category Counts (User Request) ---
+            # Check for pure category queries (without rank numbers)
+            is_rank_query = bool(re.search(r'\d+', msg_lower))
+            
+            if not is_rank_query:
+                if "b.arch" in msg_lower or "architecture" in msg_lower:
+                    return f"We have data on **{len(architecture_colleges)}** Architecture colleges. You can explore the list of all participating colleges in the **Colleges** section."
+                
+                if "dental" in msg_lower or "bds" in msg_lower:
+                    return f"We have data on **{len(dental_colleges)}** Dental colleges. You can explore the list of all participating colleges in the **Colleges** section."
+                
+                if "medical" in msg_lower or "mbbs" in msg_lower:
+                    return f"We have data on **{len(medical_colleges)}** Medical colleges. You can explore the list of all participating colleges in the **Colleges** section."
+                
+                if any(k in msg_lower for k in ["b.e", "b.tech", "engineering", "btech", "be"]):
+                    return f"We have data on **{len(colleges_list)}** Engineering colleges including top institutes like RVCE, BMSCE, and MSRIT. Check the **Colleges** tab for more details."
+
             # Check for rank prediction request
             # Look for "rank" followed by number, or just a number if it looks like a rank
-            rank_match = re.search(r'rank\s*[:is]?\s*(\d+)', message.lower())
+            rank_match = re.search(r'rank\s*[:is]?\s*(\d+)', msg_lower)
             if not rank_match:
                 # Try to find just a number if the message is short (e.g. "5000")
                 if message.strip().isdigit():
@@ -297,24 +331,103 @@ class ChatBot:
             
             if rank_match:
                 rank = int(rank_match.group(1))
-                # Call prediction logic
-                # Default to GM category and no specific branch for general queries
-                results = predict_colleges(rank, None, 'GM')
+
+                # Identify requested course type
+                msg_lower = message.lower()
+                course_type = None
                 
-                # Sort by highest admission probability (Descending Cutoff)
-                # Higher cutoff means easier to get in (higher probability)
-                results.sort(key=lambda x: x['cutoff'], reverse=True)
+                arch_keywords = ["architecture", "b.arch", "b arch", "at"]
+                design_keywords = ["design", "b.des", "b des"] # Usually handled within architecture type logic for grouping
+                eng_keywords = ["engineering", "b.e", "b.tech", "b tech", "be", "technology"]
+
+                if any(k in msg_lower for k in arch_keywords + design_keywords):
+                    course_type = 'architecture'
+                elif any(k in msg_lower for k in eng_keywords):
+                    course_type = 'engineering'
+
+                # Call prediction logic with detected type
+                results = predict_colleges(rank, None, 'GM', course_type=course_type)
                 
-                response = f"Entered Rank: {rank}\n\n"
-                
-                if results:
-                    response += "Eligible Colleges and Branches (Based on Final Round Cutoffs):\n"
-                    # Limit to top 10-15 to avoid huge messages
-                    for i, res in enumerate(results[:15], 1):
-                        response += f"{i}. {res['college']} – {res['branch']} (Final Closing Rank: {res['cutoff']})\n"
+                # --- Categorize Results ---
+                # Keywords for categorization
+                # Re-defining here for grouping logic
+                arch_keys = ["architecture", "b.arch"]
+                design_keys = ["bachelor of design", "b.des", "design"]
+                planning_keys = ["planning", "b.plan", "urban"]
+
+                eng_list = []
+                arch_list = []
+                design_list = []
+                plan_list = []
+
+                for res in results:
+                    branch_lower = res['branch'].lower()
+                    if any(k in branch_lower for k in design_keys):
+                        design_list.append(res)
+                    elif any(k in branch_lower for k in planning_keys):
+                        plan_list.append(res)
+                    elif any(k in branch_lower for k in arch_keys):
+                        arch_list.append(res)
+                    else:
+                        eng_list.append(res)
+
+                response = f"Entered Rank: {rank}\n"
+                if course_type:
+                     response += f" (Filtered for {course_type.title()})\n\n"
                 else:
-                    response += "Based on previous years’ final round cutoffs, no colleges are available for the given rank."
+                     response += "\n"
+
+                # Helper to format list
+                def format_list(lst, limit=10):
+                    txt = ""
+                    # Sort primarily by cutoff
+                    lst.sort(key=lambda x: x['cutoff']) # Ascending cutoff (Better rank first)
+                    for i, r in enumerate(lst[:limit], 1):
+                         txt += f"{i}. {r['college']} – {r['branch']}\n   (Cutoff: {r['cutoff']}, Round: {r['round']})\n"
+                    return txt
+
+                has_content = False
+
+                # 1. Architecture Results
+                if arch_list:
+                    response += "**Architecture (B.Arch)**\n"
+                    response += format_list(arch_list)
+                    response += "\n"
+                    has_content = True
+
+                # 2. Design Results
+                if design_list:
+                    response += "**Design Courses**\n"
+                    response += format_list(design_list)
+                    response += "\n*Note: Design ranks may differ significantly from Architecture norms due to intake patterns.*\n"
+                    has_content = True
                 
+                # 3. Planning Results
+                if plan_list:
+                    response += "**Planning Courses**\n"
+                    response += format_list(plan_list)
+                    response += "\n*Note: Planning ranks sort separately.*\n"
+                    has_content = True
+
+                # 4. Engineering
+                # If filtered for Architecture, this list should be empty or ignored unless specific overlap
+                if eng_list:
+                    # Only show engineering if:
+                    # a) User asked for Engineering
+                    # b) User didn't specify type (show generic)
+                    # c) User asked for Arch but somehow we got Eng results (shouldn't happen with SQL filter)
+                    
+                    if course_type == 'engineering' or not course_type:
+                        if has_content:
+                            response += "\n**Engineering Courses** (Top matches)\n"
+                        else:
+                            response += "**Eligible Engineering Colleges**:\n"
+                        response += format_list(eng_list, limit=10)
+                        has_content = True
+
+                if not has_content:
+                    response += "Based on historical data, no colleges found for this rank."
+
                 return response
 
             # First, check if the user is asking about a specific college
