@@ -11,4 +11,4 @@ requests
 beautifulsoup4
 googlesearch-python
 joblib
-xgboost
+xgboost==1.7.6
