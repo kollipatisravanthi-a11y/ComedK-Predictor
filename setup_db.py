@@ -9,13 +9,15 @@ def setup_database():
     # 1. Load Master Data CSV
     master_csv = r'data\processed\COMEDK_MASTER_2021_2025.csv'
     if not os.path.exists(master_csv):
-        print(f"❌ Error: {master_csv} not found in current directory.")
+        print(f"❌ Error: {master_csv} not found in current directory: {os.getcwd()}")
+        print(f"Directory contents: {os.listdir(os.path.dirname(master_csv)) if os.path.exists(os.path.dirname(master_csv)) else 'Directory does not exist!'}")
         return
 
     print(f"📂 Reading {master_csv}...")
     try:
         df_master = pd.read_csv(master_csv)
         print(f"   Loaded {len(df_master)} rows from master file.")
+        print(f"   Columns: {df_master.columns.tolist()}")
 
         # 1.1 Load B.Arch Data (if exists)
         barch_csv = r'data\processed\COMEDK_MASTER_BARCH.csv'
@@ -58,11 +60,19 @@ def setup_database():
 
         # 2. Write to SQLite
         print("💾 Saving to SQLite database (comedk.db)...")
-        df_master.to_sql('COMEDK_MASTER_2021_2025', engine, if_exists='replace', index=False)
-        print("✅ Master data secured in database.")
+        try:
+            df_master.to_sql('COMEDK_MASTER_2021_2025', engine, if_exists='replace', index=False)
+            print("✅ Master data secured in database.")
+        except Exception as e:
+            print(f"❌ Error writing master data to database: {e}")
+            import traceback
+            traceback.print_exc()
+            return
         
     except Exception as e:
         print(f"❌ Error loading master data: {e}")
+        import traceback
+        traceback.print_exc()
         return
 
     # 3. Generate Predictions
@@ -72,6 +82,8 @@ def setup_database():
         print("✅ Predictions generated and stored in 'predictions_2026' table.")
     except Exception as e:
         print(f"❌ Error generating predictions: {e}")
+        import traceback
+        traceback.print_exc()
 
     print("\n🎉 Setup Complete! You can now run 'python run.py'.")
 
