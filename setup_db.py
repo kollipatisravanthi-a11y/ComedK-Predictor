@@ -80,6 +80,18 @@ def setup_database():
     try:
         generate_predictions()
         print("✅ Predictions generated and stored in 'predictions_2026' table.")
+        # Export predictions_2026 to CSV for inspection
+        try:
+            import pandas as pd
+            from sqlalchemy import text
+            df_pred = pd.read_sql_query(text("SELECT * FROM predictions_2026"), engine)
+            pred_csv = r'data/processed/predictions_2026_export.csv'
+            df_pred.to_csv(pred_csv, index=False)
+            print(f"✅ Exported predictions_2026 to {pred_csv} with {len(df_pred)} rows.")
+        except Exception as ex:
+            print(f"❌ Error exporting predictions_2026 to CSV: {ex}")
+            import traceback
+            traceback.print_exc()
     except Exception as e:
         print(f"❌ Error generating predictions: {e}")
         import traceback
