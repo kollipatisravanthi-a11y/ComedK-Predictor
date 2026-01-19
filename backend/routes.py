@@ -189,88 +189,97 @@ def predictor():
         course_type = request.form.get('course_type', 'engineering')
 
         if rank is not None and category:
-            inspector = inspect(engine)
-            columns = {col['name'] for col in inspector.get_columns('predictions_2026')}
-
-            # Fallback if legacy table lacks category column
-            if 'category' in columns:
-                # Check for branch_code column
-                has_branch_code = 'branch_code' in columns
-                select_clause = "college_code, college_name, branch, " + ("branch_code, " if has_branch_code else "") + "round, category, predicted_closing_rank"
-                
-                sql = text(
-                    f"""
-                    SELECT {select_clause}
-                    FROM predictions_2026
-                    WHERE predicted_closing_rank >= :rank
-                      AND category = :category
-                    ORDER BY predicted_closing_rank ASC
-                    """
-                )
-                params = {"rank": rank, "category": category}
+            if course_type == 'architecture':
+                # Use B.Arch/Architecture predictions from store_predictions_barch
+                from backend.store_predictions_barch import fetch_predictions_arch
+                results = fetch_predictions_arch(rank, category)
             else:
-                # Check for branch_code column
-                has_branch_code = 'branch_code' in columns
-                select_clause = "college_code, college_name, branch, " + ("branch_code, " if has_branch_code else "") + "round, NULL AS category, predicted_closing_rank"
-                
-                sql = text(
-                    f"""
-                    SELECT {select_clause}
-                    FROM predictions_2026
-                    WHERE predicted_closing_rank >= :rank
-                    ORDER BY predicted_closing_rank ASC
-                    """
-                )
-                params = {"rank": rank}
+                inspector = inspect(engine)
+                columns = {col['name'] for col in inspector.get_columns('predictions_2026')}
 
-            with engine.begin() as conn:
-                df = pd.read_sql_query(sql, conn, params=params)
-            
-            # --- START FILTER LOGIC ---
-            if not df.empty:
-                # 1. Filter out Architecture or Medical if present (User requested only B.E/B.Tech for results display)
-                # Identify filtered codes
-                arch_codes = [b['code'] for b in architecture_branches]
-                
-                # Filter by branch_code if column exists, otherwise weak filter by name?
-                # The DB has 'branch_code', so use it if available in DF.
-                if 'branch_code' in df.columns:
-                     if course_type == 'engineering':
-                        # Remove architecture codes
-                        df = df[~df['branch_code'].isin(arch_codes)]
-                     elif course_type == 'architecture':
-                        # Keep ONLY architecture codes
-                        df = df[df['branch_code'].isin(arch_codes)]
-                
-                # Extract numeric round for sorting
-                # Note: 'round' might be 'R1', 'R2', or just '1', '2'
-                df['round_num'] = df['round'].astype(str).str.extract(r'(\d+)').fillna(0).astype(int)
-                
-                # Match official names BEFORE deduplication so we sort by the correct name
-                all_colleges = colleges_list + architecture_colleges + medical_colleges + dental_colleges
-                code_to_name = {c['code']: c['name'] for c in all_colleges}
-                
-                def get_official_name(row):
-                    code = row.get('college_code')
-                    return code_to_name.get(code, row.get('college_name'))
-                
-                df['college_name'] = df.apply(get_official_name, axis=1)
+                # Fallback if legacy table lacks category column
+                if 'category' in columns:
+                    # Check for branch_code column
+                    has_branch_code = 'branch_code' in columns
+                    select_clause = "college_code, college_name, branch, " + ("branch_code, " if has_branch_code else "") + "round, category, predicted_closing_rank"
+                    sql = text(
+                        f"""
+                        SELECT {select_clause}
+                        FROM predictions_2026
+                        WHERE predicted_closing_rank >= :rank
+                          AND category = :category
+                        ORDER BY predicted_closing_rank ASC
+                        """
+                    )
+                    params = {"rank": rank, "category": category}
+                else:
+                    # Check for branch_code column
+                    has_branch_code = 'branch_code' in columns
+                    select_clause = "college_code, college_name, branch, " + ("branch_code, " if has_branch_code else "") + "round, NULL AS category, predicted_closing_rank"
+                    sql = text(
+                        f"""
+                        SELECT {select_clause}
+                        FROM predictions_2026
+                        WHERE predicted_closing_rank >= :rank
+                        ORDER BY predicted_closing_rank ASC
+                        """
+                    )
+                    params = {"rank": rank}
 
-                # Sort by College, Branch, Round (Ascending)
-                # Keep ONLY the EARLIEST round for each college+branch combination I qualify for
-                df.sort_values(by=['college_name', 'branch', 'round_num'], ascending=[True, True, True], inplace=True)
-                df.drop_duplicates(subset=['college_name', 'branch'], keep='first', inplace=True)
-                
-                # Final sort by Closing Rank
-                df.sort_values(by=['predicted_closing_rank'], ascending=True, inplace=True)
-                
-                results = df.to_dict(orient='records')
-            else:
-                results = []
-            # --- END FILTER LOGIC ---
-
-            # Skip the old loop since we handled name mapping and deduplication above
-            # (Old loop code was lines 206-224)
+                with engine.begin() as conn:
+                    df = pd.read_sql_query(sql, conn, params=params)
+                # ...existing code for filtering, mapping, and results...
+                if not df.empty:
+                    arch_codes = [b['code'] for b in architecture_branches]
+                    branch_col = 'branch'
+                    if 'branch_code' in df.columns:
+                        branch_col = 'branch_code'
+                    branch_name_col = None
+                    for col in ['normalized_branch', 'branch', 'branch_name']:
+                        if col in df.columns:
+                            branch_name_col = col
+                            break
+                    if branch_name_col is None:
+                        branch_name_col = branch_col
+                    if course_type == 'engineering':
+                        df = df[~(
+                            (df[branch_col].astype(str).str.upper() == 'AT') |
+                            (df[branch_name_col].astype(str).str.upper().str.contains('B.ARCH|ARCHITECTURE', regex=True))
+                        )]
+                    df['round_num'] = df['round'].astype(str).str.extract(r'(\d+)').fillna(0).astype(int)
+                    all_colleges = colleges_list + architecture_colleges + medical_colleges + dental_colleges
+                    code_to_name = {str(c['code']).strip().upper(): c['name'] for c in all_colleges}
+                    name_to_code = {c['name'].strip().upper(): c['code'] for c in all_colleges}
+                    if 'college_code' not in df.columns:
+                        df['college_code'] = df['branch'].apply(lambda x: 'UNKNOWN')
+                    if 'college_name' not in df.columns:
+                        def infer_college_name(row):
+                            branch = str(row.get('branch', '')).strip().upper()
+                            for name in name_to_code:
+                                if branch in name:
+                                    return name
+                            return 'Unknown College'
+                        df['college_name'] = df.apply(infer_college_name, axis=1)
+                    def get_official_name(row):
+                        code = str(row.get('college_code', '')).strip().upper()
+                        name = str(row.get('college_name', '')).strip()
+                        if code in code_to_name:
+                            return code_to_name[code]
+                        if name:
+                            return name
+                        return 'Unknown College'
+                    df['college_name'] = df.apply(get_official_name, axis=1)
+                    def get_official_code(row):
+                        name = str(row.get('college_name', '')).strip().upper()
+                        if name in name_to_code:
+                            return name_to_code[name]
+                        return row.get('college_code', 'UNKNOWN')
+                    df['college_code'] = df.apply(get_official_code, axis=1)
+                    df.sort_values(by=['predicted_closing_rank'], ascending=True, inplace=True)
+                    df['branch'] = df['branch'].replace(['B.ARCH', 'B.Arch', 'Architecture'], 'Bachelor of Architecture (B.Arch)')
+                    results = df[['college_name', 'college_code', 'branch', branch_col, branch_name_col, 'round', 'category', 'predicted_closing_rank']].to_dict(orient='records')
+                else:
+                    results = []
         elif not error:
             error = "Rank and category are required."
 

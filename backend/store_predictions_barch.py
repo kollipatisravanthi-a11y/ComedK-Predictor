@@ -3,7 +3,6 @@ import numpy as np
 from flask import Flask, render_template, request
 from sqlalchemy import text
 from xgboost import XGBRegressor
-from sklearn.metrics import mean_absolute_error
 
 app = Flask(
     __name__,
@@ -15,15 +14,32 @@ app = Flask(
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from backend.database import engine
 
 # -------------------- ROUND ORDER --------------------
 ROUND_ORDER = ["R1", "R2", "R3", "R4"]
 
+# -------------------- ARCH / DESIGN CHECK --------------------
+def is_arch_or_design(branch):
+    return bool(
+        pd.Series(branch)
+        .str.contains(r"Architecture|B\.Arch|Design|B\.Des", case=False, regex=True)
+        .iloc[0]
+    )
+
+# -------------------- COURSE CODE MAPPER --------------------
+def get_course_code(branch):
+    b = str(branch).upper()
+
+    if "ARCH" in b:
+        return "AT"      # Architecture
+    if "DESIGN" in b:
+        return "BDC"     # Bachelor of Design
+    return b
+
 # -------------------- GENERATE PREDICTIONS --------------------
-def generate_predictions():
-    print("🔄 Generating predictions using ML-based trend analysis...")
+def generate_predictions_barch():
+    print("🏛 Generating Architecture & Design predictions...")
 
     query = """
     SELECT
@@ -45,16 +61,18 @@ def generate_predictions():
         return
 
     # ---------------- PREPROCESS ----------------
-    df["round"] = df["round"].astype(str).str.strip().str.upper()
+    df["round"] = df["round"].astype(str).str.upper().str.strip()
     df["category"] = df["category"].replace({"GM/KKR": "GM", "HKR": "KKR"})
-    df["category"] = df["category"].str.strip().str.upper()
-    # Normalize branch names: remove extra spaces
-    df["branch"] = df["branch"].str.replace(r'\s+', ' ', regex=True).str.strip()
+    df["category"] = df["category"].str.upper().str.strip()
+    df["branch"] = df["branch"].str.replace(r"\s+", " ", regex=True).str.strip()
+
+    # ---------- FILTER ARCH / DESIGN ----------
+    df = df[df["branch"].apply(is_arch_or_design)]
 
     df["round_num"] = df["round"].str.extract(r"(\d+)")[0].astype(int)
     df = df.dropna(subset=["round_num", "closing_rank"])
 
-    # ---------------- ACTIVE BRANCH FILTER (2025) ----------------
+    # ---------- ACTIVE COLLEGES (2025) ----------
     recent_df = df[df["year"] == 2025]
     active_keys = set(zip(recent_df["college_code"], recent_df["branch"]))
 
@@ -64,13 +82,12 @@ def generate_predictions():
     )]
 
     preds = []
-    mae_records = []
 
     groups = df.groupby(
         ["college_code", "college_name", "branch", "category"]
     )
 
-    print(f"✅ Processing {len(groups)} college–branch–category groups")
+    print(f"✅ Processing {len(groups)} Architecture / Design groups")
 
     # ---------------- GROUP LOOP ----------------
     for (c_code, c_name, branch, category), group in groups:
@@ -84,24 +101,13 @@ def generate_predictions():
             cutoffs = hist["closing_rank"].values
             last_val = cutoffs[-1]
 
-            # ---------------- ML + MAE ----------------
+            # ---------------- ML LOGIC ----------------
             if len(years) >= 3:
-                # Train on all but last year
-                train_years = years[:-1]
-                train_cutoffs = cutoffs[:-1]
-
-                test_year = years[-1]
-                test_actual = cutoffs[-1]
-
                 X_train = pd.DataFrame({
-                    "year": train_years,
-                    "year_index": np.arange(len(train_years))
+                    "year": years[:-1],
+                    "year_index": np.arange(len(years) - 1)
                 })
-
-                X_test = pd.DataFrame({
-                    "year": [test_year],
-                    "year_index": [len(train_years)]
-                })
+                y_train = cutoffs[:-1]
 
                 model = XGBRegressor(
                     n_estimators=50,
@@ -112,25 +118,7 @@ def generate_predictions():
                     random_state=42
                 )
 
-                model.fit(X_train, train_cutoffs)
-
-                test_pred = model.predict(X_test)[0]
-                mae_records.append({
-                    "college_code": c_code,
-                    "college_name": c_name,
-                    "branch": branch,
-                    "category": category,
-                    "round": f"R{r}",
-                    "mae": abs(test_actual - test_pred)
-                })
-
-                # Retrain on full data for 2026
-                X_full = pd.DataFrame({
-                    "year": years,
-                    "year_index": np.arange(len(years))
-                })
-
-                model.fit(X_full, cutoffs)
+                model.fit(X_train, y_train)
 
                 X_future = pd.DataFrame({
                     "year": [2026],
@@ -140,26 +128,12 @@ def generate_predictions():
                 pred_val = model.predict(X_future)[0]
 
             elif len(years) == 2:
-                # Linear ML fallback
                 model = XGBRegressor(
                     booster="gblinear",
                     objective="reg:squarederror",
                     learning_rate=1.0,
                     random_state=42
                 )
-
-                model.fit(years[:-1].reshape(-1, 1), cutoffs[:-1])
-                test_pred = model.predict([[years[-1]]])[0]
-
-                mae_records.append({
-                    "college_code": c_code,
-                    "college_name": c_name,
-                    "branch": branch,
-                    "category": category,
-                    "round": f"R{r}",
-                    "mae": abs(cutoffs[-1] - test_pred)
-                })
-
                 model.fit(years.reshape(-1, 1), cutoffs)
                 pred_val = model.predict([[2026]])[0]
 
@@ -167,19 +141,11 @@ def generate_predictions():
                 pred_val = last_val
 
             # ---------------- DOMAIN RULES ----------------
-            is_rv_cse = (
-                "R V College" in c_name and
-                "Computer Science" in branch
-            )
-
-            if last_val < 2000:
-                if is_rv_cse:
-                    pred_val = max(pred_val, last_val + 5)
-                    pred_val = min(pred_val, last_val * 1.15)
-                else:
-                    pred_val = max(1, last_val - 5)
-            else:
+            if last_val < 1500:
                 pred_val = max(pred_val, last_val + 5)
+                pred_val = min(pred_val, last_val * 1.15)
+            else:
+                pred_val = max(pred_val, last_val + 10)
                 pred_val = min(pred_val, last_val * 1.3)
 
             pred_val = int(max(1, pred_val))
@@ -207,7 +173,7 @@ def generate_predictions():
         for _, row in grp.iterrows():
             val = row["predicted_closing_rank"]
             if prev is not None:
-                gap = max(50, int(prev * 0.05))
+                gap = max(100, int(prev * 0.08))
                 if val < prev + gap:
                     val = prev + gap
             row["predicted_closing_rank"] = val
@@ -216,30 +182,18 @@ def generate_predictions():
 
     final_df = pd.DataFrame(final_rows)
 
-    # ---------------- STORE RESULTS ----------------
+    # ---------------- STORE ----------------
     final_df.to_sql(
-        "predictions_2026",
+        "predictions_2026_arch_design",
         engine,
         if_exists="replace",
         index=False
     )
 
-    if mae_records:
-        mae_df = pd.DataFrame(mae_records)
-        mae_df.to_sql(
-            "model_mae_2025_validation",
-            engine,
-            if_exists="replace",
-            index=False
-        )
+    print("✅ Architecture & Design predictions stored")
 
-        print("📊 MAE (Mean Absolute Error):", mae_df["mae"].mean())
-
-    print("✅ Predictions & MAE stored successfully")
-
-
-# -------------------- FETCH USER RESULTS --------------------
-def fetch_predictions(rank, category, course_type="engineering"):
+# -------------------- FETCH RESULTS --------------------
+def fetch_predictions_arch(rank, category):
     sql = text("""
         SELECT
             college_code,
@@ -247,7 +201,7 @@ def fetch_predictions(rank, category, course_type="engineering"):
             branch,
             round,
             predicted_closing_rank
-        FROM predictions_2026
+        FROM predictions_2026_arch_design
         WHERE category = :category
           AND predicted_closing_rank >= :rank
     """)
@@ -257,32 +211,40 @@ def fetch_predictions(rank, category, course_type="engineering"):
         "category": category
     })
 
-    if not df.empty and course_type:
-        # Filter based on course_type
-        is_arch = df["branch"].str.contains(r"Architecture|B\.Arch", case=False, regex=True)
-        if course_type == "architecture":
-            df = df[is_arch]
-        else:
-            df = df[~is_arch]
-
     if df.empty:
         return []
 
+    # Convert branch → course code
+    df["course_code"] = df["branch"].apply(get_course_code)
+
     df["round_num"] = df["round"].str.extract(r"(\d+)")[0].astype(int)
-    df.sort_values(["college_name", "branch", "round_num"], inplace=True)
+    df.sort_values(["college_name", "round_num"], inplace=True)
+
     df.drop_duplicates(
-        subset=["college_name", "branch"],
+        subset=["college_name", "course_code"],
         keep="first",
         inplace=True
     )
+
     df.sort_values("predicted_closing_rank", inplace=True)
+
+    df.drop(columns=["branch"], inplace=True)
+    df.rename(columns={"course_code": "branch"}, inplace=True)
+
+    # Ensure 'category' is present in the output for each row
+    if 'category' not in df.columns:
+        df['category'] = category
+
+    # Add course_full_name using code-to-name mapping from branches_data
+    from backend.branches_data import architecture_branches, engineering_branches
+    code_to_name = {b['code'].upper(): b['name'] for b in architecture_branches + engineering_branches}
+    df['course_full_name'] = df['branch'].apply(lambda code: code_to_name.get(str(code).upper(), str(code)))
 
     return df.to_dict(orient="records")
 
-
 # -------------------- ROUTE --------------------
-@app.route("/", methods=["GET", "POST"])
-def predictor():
+@app.route("/barch", methods=["GET", "POST"])
+def barch_predictor():
     results = None
     error = None
 
@@ -290,16 +252,14 @@ def predictor():
         try:
             rank = int(request.form["rank"])
             category = request.form["category"]
-            course_type = request.form.get("course_type", "engineering")
-            results = fetch_predictions(rank, category, course_type)
+            results = fetch_predictions_arch(rank, category)
         except Exception:
             error = "Invalid input"
 
-    return render_template("index.html", results=results, error=error)
-
+    return render_template("barch.html", results=results, error=error)
 
 # -------------------- MAIN --------------------
 if __name__ == "__main__":
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-        generate_predictions()
+        generate_predictions_barch()
     app.run(debug=True)

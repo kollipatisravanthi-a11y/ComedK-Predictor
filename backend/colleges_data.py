@@ -605,10 +605,15 @@ colleges_list = [{'code': 'E001',
   'name': 'New Ebenezer Institute of Technology-Kothanur, Bengaluru',
   'location': 'BENGALURU',
   'website': 'https://neit.edu.in/'},
- {'code': 'E217',
-  'name': 'Harsha Institute of Technology-Nelamangala Taluk, Bangalore Rural',
-  'location': 'BENGALURU RURAL',
-  'website': 'https://harshait.edu.in/'}]
+    {'code': 'E217',
+     'name': 'Harsha Institute of Technology-Nelamangala Taluk, Bangalore Rural',
+     'location': 'BENGALURU RURAL',
+     'website': 'https://harshait.edu.in/'},
+    {'code': 'E018', 'name': 'Bangalore College of Engineering and Technology', 'location': 'BENGALURU', 'website': ''},
+    {'code': 'E057', 'name': 'H.M.S Institute of Technology', 'location': 'TUMAKURU', 'website': ''},
+    {'code': 'E072', 'name': 'K.L.E Institute of Technology', 'location': 'HUBBALLI', 'website': ''},
+    {'code': 'E210', 'name': 'Impact College of Engineering and Applied Sciences', 'location': 'BENGALURU', 'website': ''}
+]
 
 architecture_colleges = [{'code': 'E002',
   'name': "Acharya's NRV School of Architecture",
