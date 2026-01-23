@@ -243,39 +243,39 @@
 
         searchInput.addEventListener('keyup', function() {
             const searchTerm = this.value.toLowerCase();
-            
-            // Filter General Courses (Cards)
-            const generalTab = document.getElementById('general');
-            const cards = generalTab.querySelectorAll('.col-md-6');
-            
-            cards.forEach(card => {
-                const title = card.querySelector('h6').textContent.toLowerCase();
-                const subtitle = card.querySelector('small').textContent.toLowerCase();
-                
-                if (title.includes(searchTerm) || subtitle.includes(searchTerm)) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-            
-            // Filter Engineering and Architecture Branches (Tables)
-            const tables = document.querySelectorAll('.table');
-            
-            tables.forEach(table => {
+            // Find the currently active tab
+            const activeTabPane = document.querySelector('.tab-pane.active.show');
+            if (!activeTabPane) return;
+
+            // If General tab is active, filter cards
+            if (activeTabPane.id === 'general') {
+                const cards = activeTabPane.querySelectorAll('.col-md-6');
+                cards.forEach(card => {
+                    const h6 = card.querySelector('h6');
+                    const small = card.querySelector('small');
+                    const title = h6 ? h6.textContent.toLowerCase() : '';
+                    const subtitle = small ? small.textContent.toLowerCase() : '';
+                    if (title.includes(searchTerm) || subtitle.includes(searchTerm)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            } else {
+                // For Engineering or Architecture tabs, filter table rows
+                const table = activeTabPane.querySelector('table');
+                if (!table) return;
                 const rows = table.querySelectorAll('tbody tr');
-                
                 rows.forEach(row => {
                     const name = row.cells[1].textContent.toLowerCase();
                     const code = row.cells[2].textContent.toLowerCase();
-                    
                     if (name.includes(searchTerm) || code.includes(searchTerm)) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';
                     }
                 });
-            });
+            }
         });
     });
 </script>
