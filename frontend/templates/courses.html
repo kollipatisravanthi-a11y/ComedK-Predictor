@@ -275,7 +275,7 @@
                     const name = row.cells[1].textContent.toLowerCase();
                     const code = row.cells[2].textContent.toLowerCase();
                     if (name.includes(searchTerm) || code.includes(searchTerm)) {
-                        row.style.display = '';
+                        row.style.display = 'table-row';
                         anyVisible = true;
                     } else {
                         row.style.display = 'none';
