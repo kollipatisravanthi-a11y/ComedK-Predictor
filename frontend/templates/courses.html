@@ -244,36 +244,31 @@
         }
 
         searchInput.addEventListener('keyup', function() {
-            const searchTerm = this.value.toLowerCase();
-            // Find the currently active tab
-            const activeTabPane = document.querySelector('.tab-pane.active');
-            if (!activeTabPane) return;
-
+            const searchTerm = this.value.trim().toLowerCase().replace(/\s+/g, ' ');
             let anyVisible = false;
 
-            // If General tab is active, filter cards
-            if (activeTabPane.id === 'general') {
-                const cards = activeTabPane.querySelectorAll('.col-md-6');
-                cards.forEach(card => {
-                    const h6 = card.querySelector('h6');
-                    const small = card.querySelector('small');
-                    const title = h6 ? h6.textContent.toLowerCase() : '';
-                    const subtitle = small ? small.textContent.toLowerCase() : '';
-                    if (title.includes(searchTerm) || subtitle.includes(searchTerm)) {
-                        card.style.display = '';
-                        anyVisible = true;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            } else {
-                // For Engineering or Architecture tabs, filter table rows
-                const table = activeTabPane.querySelector('table');
-                if (!table) return;
+            // Filter all General tab cards
+            const cards = document.querySelectorAll('#general .col-md-6');
+            cards.forEach(card => {
+                const h6 = card.querySelector('h6');
+                const small = card.querySelector('small');
+                const title = h6 ? h6.textContent.trim().toLowerCase().replace(/\s+/g, ' ') : '';
+                const subtitle = small ? small.textContent.trim().toLowerCase().replace(/\s+/g, ' ') : '';
+                if (title.includes(searchTerm) || subtitle.includes(searchTerm)) {
+                    card.style.display = '';
+                    anyVisible = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Filter all tables (Engineering and Architecture)
+            const tables = document.querySelectorAll('.tab-pane table');
+            tables.forEach(table => {
                 const rows = table.querySelectorAll('tbody tr');
                 rows.forEach(row => {
-                    const name = row.cells[1].textContent.toLowerCase();
-                    const code = row.cells[2].textContent.toLowerCase();
+                    const name = row.cells[1].textContent.trim().toLowerCase().replace(/\s+/g, ' ');
+                    const code = row.cells[2].textContent.trim().toLowerCase().replace(/\s+/g, ' ');
                     if (name.includes(searchTerm) || code.includes(searchTerm)) {
                         row.style.display = 'table-row';
                         anyVisible = true;
@@ -281,7 +276,7 @@
                         row.style.display = 'none';
                     }
                 });
-            }
+            });
 
             // Show/hide 'No results found' message
             const noResultsMsg = document.getElementById('noResultsMessage');
