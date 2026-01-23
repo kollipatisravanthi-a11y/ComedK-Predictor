@@ -7,14 +7,7 @@
         <p class="text-muted">Explore the various courses and branches offered under COMEDK.</p>
     </div>
 
-    <div class="row justify-content-center mb-4">
-        <div class="col-md-6">
-            <div class="input-group">
-                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                <input type="text" class="form-control border-start-0 ps-0" id="courseSearch" placeholder="Search by Course Name or Code...">
-            </div>
-        </div>
-    </div>
+
 
     <ul class="nav nav-pills nav-fill mb-4 justify-content-center gap-2" id="courseTabs" role="tablist">
         <li class="nav-item" role="presentation">
@@ -52,8 +45,7 @@
     </style>
 
     <div class="tab-content" id="courseTabsContent">
-        <!-- No results message -->
-        <div id="noResultsMessage" class="alert alert-warning text-center mt-3" style="display:none;">No results found.</div>
+
         <!-- General Courses -->
         <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
             <div class="row justify-content-center">
@@ -168,124 +160,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle URL parameters for highlighting
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        
-        if (code) {
-            const rowId = 'code-' + code;
-            const row = document.getElementById(rowId);
-            
-            if (row) {
-                // Find which tab this row belongs to
-                const tabPane = row.closest('.tab-pane');
-                if (tabPane) {
-                    const tabId = tabPane.id;
-                    const tabTrigger = document.querySelector(`[data-bs-target="#${tabId}"]`);
-                    
-                    if (tabTrigger) {
-                        // Activate the tab
-                        const tab = new bootstrap.Tab(tabTrigger);
-                        tab.show();
-                        
-                        // Wait for tab transition, then scroll and highlight
-                        setTimeout(() => {
-                            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            row.classList.add('highlight-row');
-                        }, 200);
-                    }
-                }
-            }
-        }
-
-        const searchInput = document.getElementById('courseSearch');
-        
-        // Handle URL Parameters for auto-search/highlight
-        const urlParams = new URLSearchParams(window.location.search);
-        const codeParam = urlParams.get('code');
-        
-        if (codeParam) {
-            searchInput.value = codeParam;
-            // Trigger search immediately
-            const event = new Event('keyup');
-            searchInput.dispatchEvent(event);
-            
-            // Wait for search to apply then switch tabs if needed
-            setTimeout(() => {
-                // Check where the code was found
-                // If finding by code, it's likely in tables (Engineering/Architecture)
-                const tables = document.querySelectorAll('.table');
-                let found = false;
-                
-                tables.forEach(table => {
-                    if (found) return;
-                    const rows = table.querySelectorAll('tbody tr');
-                    rows.forEach(row => {
-                         if (found) return;
-                         const code = row.cells[2].textContent.toLowerCase(); // Code is 3rd column (index 2)
-                         if (code.includes(codeParam.toLowerCase())) {
-                             // Switch to this tab
-                             const tabPane = table.closest('.tab-pane');
-                             if (tabPane) {
-                                  const tabId = tabPane.id;
-                                  const tabButton = document.querySelector(`button[data-bs-target="#${tabId}"]`);
-                                  if (tabButton) tabButton.click();
-                             }
-                             // Highlight
-                             row.classList.add('highlight-row');
-                             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                             found = true;
-                         }
-                    });
-                });
-            }, 300);
-        }
-
-        searchInput.addEventListener('keyup', function() {
-            const searchTerm = this.value.trim().toLowerCase().replace(/\s+/g, ' ');
-            let anyVisible = false;
-
-            // Filter all General tab cards
-            const cards = document.querySelectorAll('#general .col-md-6');
-            cards.forEach(card => {
-                const h6 = card.querySelector('h6');
-                const small = card.querySelector('small');
-                const title = h6 ? h6.textContent.trim().toLowerCase().replace(/\s+/g, ' ') : '';
-                const subtitle = small ? small.textContent.trim().toLowerCase().replace(/\s+/g, ' ') : '';
-                if (title.includes(searchTerm) || subtitle.includes(searchTerm)) {
-                    card.style.display = '';
-                    anyVisible = true;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            // Filter all tables (Engineering and Architecture)
-            const tables = document.querySelectorAll('.tab-pane table');
-            tables.forEach(table => {
-                const rows = table.querySelectorAll('tbody tr');
-                rows.forEach(row => {
-                    const name = row.cells[1].textContent.trim().toLowerCase().replace(/\s+/g, ' ');
-                    const code = row.cells[2].textContent.trim().toLowerCase().replace(/\s+/g, ' ');
-                    if (name.includes(searchTerm) || code.includes(searchTerm)) {
-                        row.style.display = 'table-row';
-                        anyVisible = true;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-
-            // Show/hide 'No results found' message
-            const noResultsMsg = document.getElementById('noResultsMessage');
-            if (searchTerm && !anyVisible) {
-                noResultsMsg.style.display = '';
-            } else {
-                noResultsMsg.style.display = 'none';
-            }
-        });
-    });
-</script>
+<!-- Search bar and related JS removed as requested -->
 {% endblock %}
