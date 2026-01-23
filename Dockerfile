@@ -10,4 +10,4 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Run setup_db.py before starting Gunicorn
-CMD python setup_db.py && gunicorn run:app
+CMD python setup_db.py

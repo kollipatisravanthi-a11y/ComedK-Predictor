@@ -1,3 +1,4 @@
+print("=== setup_db.py started ===")
 import pandas as pd
 import os
 from backend.database import engine

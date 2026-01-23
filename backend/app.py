@@ -1,3 +1,4 @@
+print("=== backend/app.py started ===")
 import os
 from flask import Flask, render_template
 
