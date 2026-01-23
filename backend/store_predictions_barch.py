@@ -14,6 +14,7 @@ app = Flask(
 # -------------------- DB --------------------
         # Do not run generate_predictions_barch on startup
 import os
+import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from backend.database import engine
 
