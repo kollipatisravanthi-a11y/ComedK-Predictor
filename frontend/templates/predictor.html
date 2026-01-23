@@ -15,8 +15,9 @@
                             <label for="rank" class="form-label fw-bold">Your COMEDK Rank</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-trophy text-primary"></i></span>
-                                <input type="number" class="form-control form-control-lg" id="rank" name="rank" placeholder="e.g. 5000" required>
+                                <input type="number" class="form-control form-control-lg" id="rank" name="rank" placeholder="e.g. 5000" min="1" required>
                             </div>
+                            <div class="invalid-feedback" id="rankError">Please enter a valid positive rank.</div>
                         </div>
 
                         <div class="mb-4">
@@ -42,10 +43,36 @@
                         </div>
 
                         <div class="d-grid gap-2 mt-5">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn btn-primary btn-lg" id="predictBtn">
                                 <i class="fas fa-magic me-2"></i>Predict My Colleges
                             </button>
                         </div>
+                    {% block scripts %}
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const rankInput = document.getElementById('rank');
+                            const form = rankInput.closest('form');
+                            const rankError = document.getElementById('rankError');
+                            const predictBtn = document.getElementById('predictBtn');
+                            form.addEventListener('submit', function(e) {
+                                if (rankInput.value === '' || isNaN(rankInput.value) || Number(rankInput.value) <= 0) {
+                                    rankInput.classList.add('is-invalid');
+                                    rankError.style.display = 'block';
+                                    e.preventDefault();
+                                } else {
+                                    rankInput.classList.remove('is-invalid');
+                                    rankError.style.display = 'none';
+                                }
+                            });
+                            rankInput.addEventListener('input', function() {
+                                if (rankInput.value !== '' && Number(rankInput.value) > 0) {
+                                    rankInput.classList.remove('is-invalid');
+                                    rankError.style.display = 'none';
+                                }
+                            });
+                        });
+                    </script>
+                    {% endblock %}
                     </form>
                 </div>
             </div>
