@@ -52,6 +52,8 @@
     </style>
 
     <div class="tab-content" id="courseTabsContent">
+        <!-- No results message -->
+        <div id="noResultsMessage" class="alert alert-warning text-center mt-3" style="display:none;">No results found.</div>
         <!-- General Courses -->
         <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
             <div class="row justify-content-center">
@@ -247,6 +249,8 @@
             const activeTabPane = document.querySelector('.tab-pane.active.show');
             if (!activeTabPane) return;
 
+            let anyVisible = false;
+
             // If General tab is active, filter cards
             if (activeTabPane.id === 'general') {
                 const cards = activeTabPane.querySelectorAll('.col-md-6');
@@ -257,6 +261,7 @@
                     const subtitle = small ? small.textContent.toLowerCase() : '';
                     if (title.includes(searchTerm) || subtitle.includes(searchTerm)) {
                         card.style.display = '';
+                        anyVisible = true;
                     } else {
                         card.style.display = 'none';
                     }
@@ -271,10 +276,19 @@
                     const code = row.cells[2].textContent.toLowerCase();
                     if (name.includes(searchTerm) || code.includes(searchTerm)) {
                         row.style.display = '';
+                        anyVisible = true;
                     } else {
                         row.style.display = 'none';
                     }
                 });
+            }
+
+            // Show/hide 'No results found' message
+            const noResultsMsg = document.getElementById('noResultsMessage');
+            if (searchTerm && !anyVisible) {
+                noResultsMsg.style.display = '';
+            } else {
+                noResultsMsg.style.display = 'none';
             }
         });
     });
