@@ -1,2 +1,2 @@
-web: python setup_db.py && gunicorn backend.app:app
+web: python setup_db.py && python run.py
 # Force redeploy: Procfile updated
