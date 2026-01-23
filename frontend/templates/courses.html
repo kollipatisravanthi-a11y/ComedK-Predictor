@@ -246,7 +246,7 @@
         searchInput.addEventListener('keyup', function() {
             const searchTerm = this.value.toLowerCase();
             // Find the currently active tab
-            const activeTabPane = document.querySelector('.tab-pane.active.show');
+            const activeTabPane = document.querySelector('.tab-pane.active');
             if (!activeTabPane) return;
 
             let anyVisible = false;
