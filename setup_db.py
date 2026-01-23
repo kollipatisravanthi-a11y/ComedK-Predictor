@@ -87,13 +87,8 @@ def setup_database():
         print(f"❌ Critical Error loading master data: {e}")
         return
 
-    # Generate Predictions
-    print("\n🔮 Generating 2026 Predictions...")
-    try:
-        generate_predictions()
-        print("✅ Predictions generated successfully.")
-    except Exception as e:
-        print(f"❌ Error generating predictions: {e}")
+
+    # Skipping ML-based prediction generation; using precomputed predictions only
 
     print("\n🎉 Setup Complete!")
 
