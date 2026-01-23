@@ -2,8 +2,9 @@ import pandas as pd
 import numpy as np
 from flask import Flask, render_template, request
 from sqlalchemy import text
-from xgboost import XGBRegressor
-from sklearn.metrics import mean_absolute_error
+""" # from xgboost import XGBRegressor
+# from sklearn.metrics import mean_absolute_error
+"""
 
 app = Flask(
     __name__,
@@ -12,7 +13,7 @@ app = Flask(
 )
 
 # -------------------- DB --------------------
-import sys
+        # Do not run generate_predictions on startup
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 

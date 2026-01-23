@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 from flask import Flask, render_template, request
 from sqlalchemy import text
-from xgboost import XGBRegressor
+""" # from xgboost import XGBRegressor
+"""
 
 app = Flask(
     __name__,
@@ -11,7 +12,7 @@ app = Flask(
 )
 
 # -------------------- DB --------------------
-import sys
+        # Do not run generate_predictions_barch on startup
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from backend.database import engine
