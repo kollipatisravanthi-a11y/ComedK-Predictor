@@ -101,14 +101,25 @@
 </div>
 <script>
     document.getElementById('resultSearch').addEventListener('keyup', function () {
-        var searchValue = this.value.toLowerCase();
+        var searchValue = this.value.trim().toLowerCase();
         var rows = document.querySelectorAll('table tbody tr');
 
         rows.forEach(function (row) {
-            var collegeName = row.cells[0].textContent.toLowerCase();
-            var branchName = row.cells[1].textContent.toLowerCase();
+            var collegeCode = row.cells[0].textContent.trim().toLowerCase();
+            var collegeName = row.cells[1].textContent.trim().toLowerCase();
+            var course = row.cells[2].textContent.trim().toLowerCase();
+            var round = row.cells[3].textContent.trim().toLowerCase();
+            var category = row.cells[4].textContent.trim().toLowerCase();
+            // If you have a location column, add: var location = row.cells[5].textContent.trim().toLowerCase();
 
-            if (collegeName.includes(searchValue) || branchName.includes(searchValue)) {
+            if (
+                collegeCode.includes(searchValue) ||
+                collegeName.includes(searchValue) ||
+                course.includes(searchValue) ||
+                round.includes(searchValue) ||
+                category.includes(searchValue)
+                // || location.includes(searchValue) // Uncomment if location column exists
+            ) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
