@@ -1,2 +1,2 @@
 [phases.setup]
-nixPkgs = ["gcc", "gfortran", "python311Packages.pip"]
+nixPkgs = ["gcc", "gfortran", "libgomp", "python311Packages.pip"]

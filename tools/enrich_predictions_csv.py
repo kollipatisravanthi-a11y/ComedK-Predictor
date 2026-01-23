@@ -1,13 +1,13 @@
 import pandas as pd
 import re
-from backend.colleges_data import colleges_list, architecture_colleges, medical_colleges, dental_colleges
+from backend.colleges_data import colleges_list, architecture_colleges
 
 # Load the original predictions CSV
 input_csv = 'predictions_2026.csv'
 df = pd.read_csv(input_csv)
 
 # Combine all colleges into one list
-all_colleges = colleges_list + architecture_colleges + medical_colleges + dental_colleges
+all_colleges = colleges_list + architecture_colleges
 
 # Build a mapping from college name (upper, stripped) to code and official name
 name_map = {c['name'].strip().upper(): (c['code'], c['name']) for c in all_colleges}

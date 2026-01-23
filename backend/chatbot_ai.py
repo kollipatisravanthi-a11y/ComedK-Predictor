@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
-from backend.colleges_data import colleges_list, architecture_colleges, medical_colleges, dental_colleges
+from backend.colleges_data import colleges_list, architecture_colleges
 # from backend.utils import load_comedk_data
 # from backend.prediction import predict_colleges
 from sqlalchemy import create_engine, text
@@ -312,11 +312,7 @@ class ChatBot:
                 if "b.arch" in msg_lower or "architecture" in msg_lower:
                     return f"We have data on **{len(architecture_colleges)}** Architecture colleges. You can explore the list of all participating colleges in the **Colleges** section."
                 
-                if "dental" in msg_lower or "bds" in msg_lower:
-                    return f"We have data on **{len(dental_colleges)}** Dental colleges. You can explore the list of all participating colleges in the **Colleges** section."
                 
-                if "medical" in msg_lower or "mbbs" in msg_lower:
-                    return f"We have data on **{len(medical_colleges)}** Medical colleges. You can explore the list of all participating colleges in the **Colleges** section."
                 
                 if any(k in msg_lower for k in ["b.e", "b.tech", "engineering", "btech", "be"]):
                     return f"We have data on **{len(colleges_list)}** Engineering colleges including top institutes like RVCE, BMSCE, and MSRIT. Check the **Colleges** tab for more details."

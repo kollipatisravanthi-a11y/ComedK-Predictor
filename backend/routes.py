@@ -9,8 +9,7 @@ from backend.app import app
 from backend.branches_data import architecture_branches, engineering_branches
 from backend.chatbot_ai import chatbot
 from backend.college_agent import college_agent
-from backend.college_details_data import get_college_explicit_data
-from backend.colleges_data import architecture_colleges, colleges_list, dental_colleges, medical_colleges
+from backend.colleges_data import architecture_colleges, colleges_list
 
 # Removed unused imports
 # from backend.prediction import get_college_courses
@@ -75,10 +74,6 @@ def get_college_data_api(college_code):
     college = next((c for c in colleges_list if c['code'] == college_code), None)
     if not college:
         college = next((c for c in architecture_colleges if c['code'] == college_code), None)
-    if not college:
-        college = next((c for c in medical_colleges if c['code'] == college_code), None)
-    if not college:
-        college = next((c for c in dental_colleges if c['code'] == college_code), None)
     
     if not college:
         return jsonify({"error": "College not found"}), 404
@@ -109,7 +104,7 @@ def exam_details():
 
 @app.route('/colleges')
 def colleges():
-    return render_template('colleges.html', engineering_colleges=colleges_list, architecture_colleges=architecture_colleges, medical_colleges=medical_colleges, dental_colleges=dental_colleges)
+    return render_template('colleges.html', engineering_colleges=colleges_list, architecture_colleges=architecture_colleges)
 
 
 def get_college_courses_db(college_code):
@@ -139,10 +134,6 @@ def college_details(college_code):
     college = next((c for c in colleges_list if c['code'] == college_code), None)
     if not college:
         college = next((c for c in architecture_colleges if c['code'] == college_code), None)
-    if not college:
-        college = next((c for c in medical_colleges if c['code'] == college_code), None)
-    if not college:
-        college = next((c for c in dental_colleges if c['code'] == college_code), None)
         
     if not college:
         return "College not found", 404
@@ -247,7 +238,7 @@ def predictor():
                             (df[branch_name_col].astype(str).str.upper().str.contains('B.ARCH|ARCHITECTURE', regex=True))
                         )]
                     df['round_num'] = df['round'].astype(str).str.extract(r'(\d+)').fillna(0).astype(int)
-                    all_colleges = colleges_list + architecture_colleges + medical_colleges + dental_colleges
+                    all_colleges = colleges_list + architecture_colleges
                     code_to_name = {str(c['code']).strip().upper(): c['name'] for c in all_colleges}
                     name_to_code = {c['name'].strip().upper(): c['code'] for c in all_colleges}
                     if 'college_code' not in df.columns:

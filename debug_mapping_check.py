@@ -6,9 +6,9 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 try:
-    from backend.colleges_data import colleges_list, architecture_colleges, medical_colleges, dental_colleges
+    from backend.colleges_data import colleges_list, architecture_colleges
     
-    all_colleges = colleges_list + architecture_colleges + medical_colleges + dental_colleges
+    all_colleges = colleges_list + architecture_colleges
     code_to_name = {c['code']: c['name'] for c in all_colleges}
     
     print(f"Loaded {len(code_to_name)} college codes from colleges_data.py")

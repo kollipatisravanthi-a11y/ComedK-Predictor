@@ -688,44 +688,4 @@ architecture_colleges = [{'code': 'E002',
   'location': 'TUMAKURU',
   'website': 'https://www.pdsssa.edu.in/'}]
 
-medical_colleges = [
-    {'code': 'M002', 'name': 'Basaveshwara Medical College And Hospital', 'location': 'CHITRADURGA', 'website': 'https://www.basaveshwarahospital.com/'},
-    {'code': 'M003', 'name': 'S. Nijalingappa Medical College and HSK Hospital and Research Centre', 'location': 'BAGALKOT', 'website': 'https://snmcbgk.in'},
-    {'code': 'M004', 'name': 'Dr. B.R. Ambedkar Medical College', 'location': 'BENGALURU', 'website': 'https://www.bramc.edu.in'},
-    {'code': 'M005', 'name': "H.K.E. Society's M.R. Medical College", 'location': 'GULBARGA', 'website': 'https://mrmc.hkes.edu.in'},
-    {'code': 'M006', 'name': 'J.J.M.Medical College', 'location': 'DAVANGERE', 'website': 'http://www.jjmmc.org/index.php'},
-    {'code': 'M007', 'name': 'K V G Medical College', 'location': 'SULLIA', 'website': 'https://kvgmch.org'},
-    {'code': 'M008', 'name': 'Kempegowda Institute of Medical Sciences', 'location': 'BENGALURU', 'website': 'https://www.kimsbangalore.edu.in'},
-    {'code': 'M009', 'name': 'M. S. Ramaiah Medical College', 'location': 'MATHIKERE', 'website': 'https://www.msrmc.ac.in'},
-    {'code': 'M010', 'name': 'S S Institute of Medical Sciences & Research Centre', 'location': 'DAVANGERE', 'website': 'https://www.ssimsrc.com'},
-    {'code': 'M011', 'name': 'Father Muller Medical College', 'location': 'MANGALURU', 'website': 'https://www.fathermuller.edu.in'},
-    {'code': 'M013', 'name': 'BGS Global Institute of Medical Sciences', 'location': 'BENGALURU', 'website': 'https://www.bgsgims.edu.in'},
-    {'code': 'M014', 'name': 'Shridevi Institute Medical Sciences & Research Hospital', 'location': 'TUMAKURU', 'website': 'https://shridevimedical.org'},
-    {'code': 'M015', 'name': 'S. R. Patil Medical College Hospital Research Centre Badagandi.', 'location': 'Karnataka', 'website': 'https://www.srpmchrc.edu.in/'},
-    {'code': 'M016', 'name': 'East Point College of Medical Sciences & Research Centre', 'location': 'BENGALURU', 'website': 'https://www.eastpoint.ac.in'},
-    {'code': 'M017', 'name': 'Sapthagiri Institute of Medical Sciences & Research Centre', 'location': 'BENGALURU', 'website': 'https://smcri.edu.in'},
-    {'code': 'M018', 'name': 'Siddaganga Medical College & Research Institute', 'location': 'BENGALURU', 'website': 'https://simsrc.edu.in'}
-]
 
-dental_colleges = [
-    {'code': 'D001', 'name': "AME'S Dental College & Hospital", 'location': 'RAICHUR', 'website': 'https://www.amesdentalcollege.com'},
-    {'code': 'D002', 'name': 'Bapuji Dental College & Hospital', 'location': 'DAVANGERE', 'website': 'https://www.bapujidental.edu'},
-    {'code': 'D003', 'name': 'College of Dental Sciences', 'location': 'DAVANGERE', 'website': 'https://cods.edu'},
-    {'code': 'D004', 'name': 'D.A.Pandu Memorial R.V.Dental College', 'location': 'BENGALURU', 'website': 'https://www.dapmrvdc.edu.in'},
-    {'code': 'D005', 'name': 'Dayananda Sagar College of Dental Sciences', 'location': 'BENGALURU', 'website': 'https://www.dscds.edu.in'},
-    {'code': 'D007', 'name': 'HKES .S. Nijalingappa Institute of Dental Sciences & Research', 'location': 'GULBARGA', 'website': 'https://sndentalcollege.org/'},
-    {'code': 'D008', 'name': "HDET's Dental College& Hospital", 'location': 'HUMNABAD', 'website': 'https://hkdetdentalcollege.in'},
-    {'code': 'D010', 'name': "K L E Society's Institute of Dental Sciences", 'location': 'BENGALURU', 'website': 'https://www.kledentalbengaluru.com'},
-    {'code': 'D011', 'name': 'K.V.G.Dental College & Hospital', 'location': 'SULLIA', 'website': 'https://kvgmch.org'},
-    {'code': 'D012', 'name': 'Krishnadevaraya College of Dental Sciences', 'location': 'BENGALURU', 'website': 'https://www.kcdsh.org'},
-    {'code': 'D013', 'name': 'M.R. Ambedkar Dental College & Hospital', 'location': 'BENGALURU', 'website': 'https://mradc.in'},
-    {'code': 'D015', 'name': "Maratha Mandal's Nathajirao G.Halgekar Institute of Dental Sciences", 'location': 'BELAGAVI', 'website': 'https://www.mmdc.edu.in'},
-    {'code': 'D016', 'name': 'S.B. Patil Dental College & Hospital', 'location': 'BIDAR', 'website': 'https://sbpatildentalcollege.in'},
-    {'code': 'D017', 'name': 'Sharavathi Dental College & Hospital', 'location': 'SHIMOGA', 'website': 'https://www.sharavathidc.org'},
-    {'code': 'D018', 'name': 'P.M.N.M.Dental College & Hospital', 'location': 'BAGALKOT', 'website': 'https://pmnmdentalcollege.edu.in/'},
-    {'code': 'D019', 'name': 'Sri Jagadguru Jayadeva Murugharajendra Dental College & Hospital', 'location': 'CHITRADURGA', 'website': 'https://www.sjmdental.org'},
-    {'code': 'D020', 'name': 'Sri Hasanamba Dental College & Hospital', 'location': 'HASSAN', 'website': 'https://srihasanambadental.edu.in'},
-    {'code': 'D021', 'name': 'Sri Rajiv Gandhi College of Dental Sciences & Hospital', 'location': 'BENGALURU', 'website': 'https://www.srgcds.ac.in'},
-    {'code': 'D022', 'name': 'Sri Venkateshwara Dental College & Hospital', 'location': 'BENGALURU', 'website': 'https://www.svdc.ac.in'},
-    {'code': 'D023', 'name': 'Vokkaligara Sangha Dental College & Hospital', 'location': 'BENGALURU', 'website': 'https://www.vsdentalcollege.org/'}
-]
