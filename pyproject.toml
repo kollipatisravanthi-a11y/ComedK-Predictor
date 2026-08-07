@@ -7,7 +7,25 @@ name = "comedk-college-predictor"
 version = "1.0.0"
 description = "COMEDK college predictor Flask app"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+  "Flask",
+  "pandas",
+  "matplotlib",
+  "numpy",
+  "scikit-learn",
+  "gunicorn",
+  "pytest",
+  "openpyxl",
+  "SQLAlchemy",
+  "requests",
+  "beautifulsoup4",
+  "googlesearch-python",
+  "joblib",
+  "xgboost==1.7.6"
+]
+
+[tool.uv]
+package = false
 
 [tool.vercel]
 entrypoint = "backend.app:app"
