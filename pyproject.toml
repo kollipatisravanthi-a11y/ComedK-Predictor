@@ -1,2 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "comedk-college-predictor"
+version = "1.0.0"
+description = "COMEDK college predictor Flask app"
+requires-python = ">=3.11"
+dependencies = []
+
 [tool.vercel]
 entrypoint = "backend.app:app"
