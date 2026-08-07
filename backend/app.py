@@ -8,6 +8,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'frontend', 'templates')
 STATIC_DIR = os.path.join(BASE_DIR, 'frontend', 'static')
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
+application = app
 
 @app.after_request
 def add_header(response):
@@ -24,5 +25,5 @@ def add_header(response):
 from backend.routes import *
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))  # Use Render's default port if not set
-    app.run(host="0.0.0.0", port=port, debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port, debug=False)
